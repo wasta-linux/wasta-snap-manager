@@ -32,7 +32,7 @@ def get_user():
 
 def set_up_logging():
     user = get_user()
-    log_path = Path('/home', user, '.local', 'wasta-snap-manager')
+    log_path = Path('/home', user, '.local', 'share', 'wasta-snap-manager')
     os.mkdir(log_path)
     shutil.chown(log_path, user=user, group=user)
     timestamp = time.strftime('%Y-%m-%d-%H-%M')
@@ -45,6 +45,7 @@ def set_up_logging():
         format='%(asctime)s %(levelname)s: %(message)s',
         datefmt='%H:%M:%S'
     )
+    shutil.chown(filename, user=user, group=user)
     logging.info('******* INSTALLING/UPDATING SNAPS **************')
     print('wasta-snap-manager log:')
     print(filename)
