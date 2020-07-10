@@ -36,5 +36,6 @@ from wsm import wsmapp
 if __name__ == '__main__':
     wsmapp.app.runmode = runmode
     status = wsmapp.app.run(sys.argv)
-    shutil.rmtree(Path(modules_dir, wsm, __pycache__))
+    # Remove compiled objects on exit. Otherwise app can't be fully uninstalled.
+    shutil.rmtree(Path(modules_dir, 'wsm', '__pycache__'))
     sys.exit(status)
