@@ -7,7 +7,7 @@ Standards-Version: 3.9.7
 Homepage: https://github.com/wasta-linux/wasta-offline
 
 Package: wasta-snap-manager
-Architecture: all
+Architecture: amd64
 Depends: snap-settings, snapd, python3, policykit-1, squashfs-tools, ${misc:Depends}
 Suggests:
 Description: Manage snap packages and settings for better offline support.
