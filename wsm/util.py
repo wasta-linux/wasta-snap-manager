@@ -6,6 +6,7 @@ import os
 import platform
 import pwd
 import re
+import shutil
 import socket
 import subprocess
 import tempfile
@@ -33,6 +34,7 @@ def set_up_logging():
     user = get_user()
     log_path = Path('/home', user, '.local', 'wasta-snap-manager')
     os.mkdir(log_path)
+    shutil.chown(log_path, user=user, group=user)
     timestamp = time.strftime('%Y-%m-%d-%H-%M')
     hostname = socket.gethostname()
     log_file = timestamp + '-' + hostname + '.log'
