@@ -40,7 +40,7 @@ class WSMApp(Gtk.Application):
 
         # Get UI location based on current file location.
         self.ui_dir = '/usr/share/wasta-snap-manager/ui'
-        if current_file_path.parents[1] != '/usr/share/wasta-snap-manager':
+        if str(current_file_path.parents[1]) != '/usr/share/wasta-snap-manager':
             self.ui_dir = str(current_file_path.parents[1] / 'data' / 'ui')
 
         # Define app-wide variables.
