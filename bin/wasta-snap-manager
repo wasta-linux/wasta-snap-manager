@@ -3,6 +3,7 @@
 # TODO: ('-' = to do, '+' = to test)
 #   + Make listbox_installed selectable when:
 #       + listbox_available is populated & if updatable_offline_list is not empty
+#   - fix log location. ~/.local/share/wasta-snap-manager/... or ~/.local/wasta-snap-manager/...
 #   - Unhide "Remove Snaps..." button: it works uninstalled but not when installed.
 #   - Add i10n/l18n
 

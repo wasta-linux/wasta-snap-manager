@@ -31,7 +31,8 @@ def get_user():
 
 def set_up_logging():
     user = get_user()
-    log_path = Path('/home', user, '.log', 'wasta-snap-manager')
+    log_path = Path('/home', user, '.local', 'wasta-snap-manager')
+    os.mkdir(log_path)
     timestamp = time.strftime('%Y-%m-%d-%H-%M')
     hostname = socket.gethostname()
     log_file = timestamp + '-' + hostname + '.log'
