@@ -1,8 +1,8 @@
 
 [Desktop Entry]
 Name=Wasta Snap Manager
-Comment=Manage snap system settings
+Comment=Selectively manage snap packages offline or online.
 Exec=pkexec /usr/bin/wasta-snap-manager
 Type=Application
-Icon=wasta-offline
+Icon=wasta-snap-manager
 Categories=GNOME;GTK;System;Utility;

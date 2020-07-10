@@ -1,7 +1,8 @@
-bin                 usr
-data/applications   usr/share
-#locale             usr/share
-data/actions        usr/share/polkit-1
-#po                 usr/share/snap-settings
-data/ui             usr/share/wasta-snap-manager
-wsm                 usr/share/wasta-snap-manager
+bin                                 usr
+data/applications                   usr/share
+#locale                             usr/share
+data/icons/wasta-snap-manager.svg   usr/share/icons/hicolor/scalable/apps
+data/actions                        usr/share/polkit-1
+#po                                 usr/share/snap-settings
+data/ui                             usr/share/wasta-snap-manager
+wsm                                 usr/share/wasta-snap-manager

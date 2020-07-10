@@ -76,6 +76,7 @@ class WSMApp(Gtk.Application):
         # Define window and make runtime adjustments.
         # TODO: The window could be its own class in its own module.
         self.window = self.builder.get_object('window_snap_manager')
+        self.window.set_icon_name('wasta-snap-manager')
         self.add_window(self.window)
         self.window.show()
 

@@ -33,7 +33,8 @@ def get_user():
 def set_up_logging():
     user = get_user()
     log_path = Path('/home', user, '.local', 'share', 'wasta-snap-manager')
-    os.mkdir(log_path)
+    if not log_path:
+        os.mkdir(log_path)
     shutil.chown(log_path, user=user, group=user)
     timestamp = time.strftime('%Y-%m-%d-%H-%M')
     hostname = socket.gethostname()
