@@ -1,4 +1,4 @@
-Source: wasta-snap-support
+Source: wasta-snap-manager
 Section: utils
 Priority: optional
 Maintainer: Nate Marti <nate_marti@sil.org>
@@ -6,9 +6,9 @@ Build-Depends: debhelper (>= 9.0.0)
 Standards-Version: 3.9.7
 Homepage: https://github.com/wasta-linux/wasta-offline
 
-Package: wasta-snap-support
+Package: wasta-snap-manager
 Architecture: all
-Depends: network-manager, snapd, python3, policykit-1, ${misc:Depends}
+Depends: snap-settings, snapd, python3, policykit-1, squashfs-tools, ${misc:Depends}
 Suggests:
 Description: Manage snap packages and settings for better offline support.
  Snap Settings provides a graphical interface for managing various snap system

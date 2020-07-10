@@ -1,5 +1,5 @@
 Format: http://dep.debian.net/deps/dep5
-Upstream-Name: wasta-snap-support
+Upstream-Name: wasta-snap-manager
 Source: https://launchpad.net/~wasta-linux
 
 Files: *
