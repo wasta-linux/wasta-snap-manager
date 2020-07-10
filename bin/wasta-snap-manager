@@ -13,6 +13,7 @@ if os.geteuid() != 0:
     print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", __file__, "\n$ sudo", __file__)
     exit(1)
 
+import shutil
 import sys
 from pathlib import Path
 
@@ -35,4 +36,5 @@ from wsm import wsmapp
 if __name__ == '__main__':
     wsmapp.app.runmode = runmode
     status = wsmapp.app.run(sys.argv)
+    shutil.rmtree(Path(modules_dir, wsm, __pycache__))
     sys.exit(status)
