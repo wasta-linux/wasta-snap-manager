@@ -2,6 +2,7 @@
 
 import gi
 import logging
+import os
 
 from pathlib import Path
 current_file_path = Path(__file__)
@@ -68,6 +69,11 @@ class WSMApp(Gtk.Application):
         self.label_can_update = self.builder.get_object('label_can_update')
 
     def do_activate(self):
+        # Verify execution with elevated privileges.
+        if os.geteuid() != 0:
+            print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", __file__, "\n$ sudo", __file__)
+            exit(1)
+
         # Start GUI logging
         util.set_up_logging()
         util.log_snapd_version(util.get_snapd_version())
@@ -151,6 +157,11 @@ class WSMApp(Gtk.Application):
             print('snapd version: %s' % util.get_snapd_version())
             return 0
 
+        # Verify execution with elevated privileges.
+        if os.geteuid() != 0:
+            print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", __file__, "\n$ sudo", __file__)
+            exit(1)
+
         # Set up logging.
         util.set_up_logging()
         util.log_snapd_version(util.get_snapd_version())
@@ -167,6 +178,9 @@ class WSMApp(Gtk.Application):
         for opt in options:
             if opt == 'snaps-dir':
                 folder = options['snaps-dir']
+                # Move snaps into arch-specific subfolders for multi-arch support.
+                util.wasta_offline_snap_cleanup(folder)
+                # Update snaps from wasta-offline folder.
                 status = cmdline.update_offline(folder)
                 if status != 0:
                     return status

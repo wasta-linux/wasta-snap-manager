@@ -3,6 +3,8 @@
 import subprocess
 import threading
 
+from pathlib import Path
+
 from wsm import util
 from wsm import worker
 from wsm import wsmapp
@@ -25,7 +27,12 @@ class Handler():
         self.t_online_check.start()
 
     def on_button_source_offline_file_set(self, folder_obj):
-        folder = folder_obj.get_filename()
+        folder = Path(folder_obj.get_filename())
+
+        # Move wasta-offline snaps into arch-specific subfolders for multi-arch support.
+        if folder.name == 'wasta-offline':
+            util.wasta_offline_snap_cleanup(folder)
+        folder = str(folder)
 
         # Remove any existing rows (placeholder, previous folder, etc.).
         children = wsmapp.app.listbox_available.get_children()
@@ -38,8 +45,8 @@ class Handler():
         wsmapp.app.select_offline_update_rows(folder)
 
         # Populate available snaps rows.
-        list = wsmapp.app.installable_snaps_list
-        wsmapp.app.rows1 = wsmapp.app.populate_listbox_available(wsmapp.app.listbox_available, list)
+        lst = wsmapp.app.installable_snaps_list
+        wsmapp.app.rows1 = wsmapp.app.populate_listbox_available(wsmapp.app.listbox_available, lst)
 
     def on_button_update_snaps_clicked(self, *args):
         # Make sure on_button_source_online_toggled has finished before continuing.

@@ -21,6 +21,62 @@ from wsm import wsmapp
 from wsm.snapd import snap
 
 
+def wasta_offline_snap_cleanup(folder):
+    print('checking for snaps in {}'.format(folder))
+    logging.info('Ensuring that snap packages are sorted into arch-specific subfolders.')
+    snaps_dir = Path(folder, 'local-cache', 'snaps')
+    snaps = get_list_from_snaps_folder(snaps_dir)
+    if len(snaps) == 0:
+        # Snaps folder contains no snaps. Return silently.
+        return
+
+    # Gather architecture info from snaps.
+    #   Create dictionary of: {name_rev: [arch1, arch2, archN], ...}
+    #       Valid arches: s390x, ppc64el, arm64, armhf, amd64, i386, all
+    #           https://snapcraft.io/docs/architectures
+    #       A snap could possibly run on multiple arch's without specifying "all".
+    #         So, I suppose in that case the snap would need to be copied multiple
+    #          times: once into each relevant arch folder!
+    wayward_snaps = {}
+    for snap_dict in snaps:
+        file_path = snap_dict['file_path']
+        contents = cat_yaml(file_path).splitlines()
+        p = Path(file_path)
+        name, revision = p.stem.split('_')
+        wayward_snaps[p.stem] = []
+        found = 0
+        for line in contents:
+            if found == 0:
+                if re.match('.*architectures\:.*', line):
+                    found = 1
+            elif found == 1:
+                if re.match('^\s*-\s.*', line):
+                    wayward_snaps[p.stem].append(line.split()[1].strip())
+                else:
+                    # No more arches listed.
+                    break
+
+    # Move snaps to arch-specific subfolders.
+    user = get_user()
+    for snap_rev in wayward_snaps.keys():
+        for arch in wayward_snaps[snap_rev]:
+            # Create arch-specific subfolder(s).
+            arch_dir = Path(snaps_dir, arch)
+            if not arch_dir.is_dir():
+                os.mkdir(arch_dir, mode=777)
+                shutil.chown(arch_dir, user=user, group=user)
+            # Copy snaps to arch-specific folder.
+            assert_file = snap_rev + '.assert'
+            snap_file = snap_rev + '.snap'
+            logging.info('Moving {} and {} into {}'.format(snap_file, assert_file, arch_dir))
+            try:
+                shutil.move(str(Path(snaps_dir, snap_file)), str(arch_dir))
+            except shutil.Error as err:
+                logging.warning(err)
+                continue
+            shutil.move(str(Path(snaps_dir, assert_file)), str(arch_dir))
+    print("Existing snap packages moved into relevant architecture subfolders.")
+
 def get_user():
     try:
         # if using pkexec
@@ -67,7 +123,7 @@ def log_snapd_version(version):
 
 def guess_offline_source_folder():
     user = get_user()
-    logging.info('USER: %s' % user)
+    logging.info('username: %s' % user)
     begin = ''
     try:
         begin = sorted(Path('/media/' + user).glob('*/wasta-offline'))[0]
@@ -85,6 +141,8 @@ def guess_offline_source_folder():
                 logging.warning('No wasta-offline folder found. Falling back to \'%s\'.' % alt_begin)
     if begin:
         logging.info('wasta-offline folder found at \'%s\'' % begin)
+        # Move wasta-offline snaps into arch-specific subfolders for multi-arch support.
+        wasta_offline_snap_cleanup(begin)
     else:
         begin = alt_begin
     return user, begin.as_posix()
@@ -146,7 +204,7 @@ def add_item_to_update_list(item, update_list):
     return update_list
 
 def get_list_from_snaps_folder(dir):
-    list = []
+    snaps = []
     for assertfile in Path(dir).glob('*.assert'):
         # Each assert file is found first, then the corresponding snap file.
         snapfile = str(Path(dir, assertfile.stem + '.snap'))
@@ -154,8 +212,8 @@ def get_list_from_snaps_folder(dir):
             # The snap file is only included if both the assert and snap exist.
             snap, rev = Path(snapfile).stem.split('_')
             dictionary = {'name': snap, 'revision': rev, 'file_path': snapfile}
-            list.append(dictionary)
-    return list
+            snaps.append(dictionary)
+    return snaps
 
 def list_offline_snaps(dir, init=False):
     # Called at 2 different times:
@@ -190,8 +248,6 @@ def list_offline_snaps(dir, init=False):
             folder_path = Path(dir, 'local-cache', 'snaps', folder)
         if folder_path.exists():
             # Add new dictionary from folder to existing one.
-            #offline_dict.update(get_dict_from_snaps_folder(folder_path))
-            #print(folder_path)
             offline_list += get_list_from_snaps_folder(folder_path)
     return offline_list
 
@@ -245,8 +301,8 @@ def cat_yaml(snapfile):
             ['unsquashfs', '-n',  '-force', '-dest', dest, snapfile, '/' + yaml],
             stdout=DEVNULL
         )
-        with open(Path(dest, yaml)) as file:
-            return file.read()
+        with open(Path(dest, yaml)) as f:
+            return f.read()
 
 def get_offline_snap_details(snapfile):
     contents = cat_yaml(snapfile).splitlines()

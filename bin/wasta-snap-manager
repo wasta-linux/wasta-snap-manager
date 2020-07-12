@@ -3,15 +3,8 @@
 # TODO: ('-' = to do, '+' = to test)
 #   + Make listbox_installed selectable when:
 #       + listbox_available is populated & if updatable_offline_list is not empty
-#   - fix log location. ~/.local/share/wasta-snap-manager/... or ~/.local/wasta-snap-manager/...
 #   - Unhide "Remove Snaps..." button: it works uninstalled but not when installed.
 #   - Add i10n/l18n
-
-# Verify execution with elevated privileges.
-import os
-if os.geteuid() != 0:
-    print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", __file__, "\n$ sudo", __file__)
-    exit(1)
 
 import shutil
 import sys
