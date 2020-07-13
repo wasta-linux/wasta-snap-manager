@@ -22,7 +22,7 @@ from wsm.snapd import snap
 
 
 def wasta_offline_snap_cleanup(folder):
-    print('checking for snaps in {}'.format(folder))
+    print('Checking for snaps in {}'.format(folder))
     logging.info('Ensuring that snap packages are sorted into arch-specific subfolders.')
     snaps_dir = Path(folder, 'local-cache', 'snaps')
     snaps = get_list_from_snaps_folder(snaps_dir)
@@ -63,7 +63,8 @@ def wasta_offline_snap_cleanup(folder):
             # Create arch-specific subfolder(s).
             arch_dir = Path(snaps_dir, arch)
             if not arch_dir.is_dir():
-                os.mkdir(arch_dir, mode=777)
+                #os.mkdir(arch_dir, mode=777)
+                Path.mkdir(arch_dir, mode=0o777)
                 shutil.chown(arch_dir, user=user, group=user)
             # Copy snaps to arch-specific folder.
             assert_file = snap_rev + '.assert'
@@ -263,8 +264,6 @@ def get_offline_updatable_snaps(folder):
     return updatable_snaps_list
 
 def get_offline_installable_snaps(snaps_folder):
-    # Include this offline folder in update sources list.
-    rows = wsmapp.app.rows
     installed_snaps_list = wsmapp.app.installed_snaps_list
     offline_snaps_list = list_offline_snaps(snaps_folder)
     copy1 = copy2 = offline_snaps_list
@@ -295,14 +294,17 @@ def snap_store_accessible():
 def cat_yaml(snapfile):
     # Data needed: 'base', 'confinement', 'prerequisites'
     yaml = 'meta/snap.yaml'
-    DEVNULL = open(os.devnull, 'w')
-    with tempfile.TemporaryDirectory() as dest:
-        subprocess.run(
-            ['unsquashfs', '-n',  '-force', '-dest', dest, snapfile, '/' + yaml],
-            stdout=DEVNULL
-        )
-        with open(Path(dest, yaml)) as f:
-            return f.read()
+    with open(os.devnull, 'w') as DEVNULL:
+        with tempfile.TemporaryDirectory() as dest:
+            subprocess.run(
+                ['unsquashfs', '-n',  '-force', '-dest', dest, snapfile, '/' + yaml],
+                stdout=DEVNULL
+            )
+            with open(Path(dest, yaml)) as f:
+                #return f.read()
+                contents = f.read()
+
+    return contents
 
 def get_offline_snap_details(snapfile):
     contents = cat_yaml(snapfile).splitlines()

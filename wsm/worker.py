@@ -68,24 +68,6 @@ def handle_button_update_snaps_clicked():
         spinner.start()
 
         update_snap_offline(snap_name, updatables)
-        """
-        # Update from offline source first.
-        offline_names = [i['name'] for i in updatables]
-        if snap_name in offline_names:
-            file_paths = [i['file_path'] for i in updatables if i['name'] == snap_name]
-            file_path = Path(file_paths[0])
-
-            offline_snap_details = (util.get_offline_snap_details(file_path))
-            classic_flag=False
-            try:
-                confinement = offline_snap_details['confinement']
-                if confinement == 'classic':
-                    classic_flag=True
-            except KeyError:
-                pass
-
-            install_snap_offline(file_path, classic_flag)
-        """
 
         # Update from online source.
         if snap_name in wsmapp.app.updatable_online_list:
