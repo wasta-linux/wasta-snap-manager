@@ -233,7 +233,7 @@ def list_offline_snaps(dir, init=False):
     # Get arch in order to search correct wasta-offline folders.
     arch = platform.machine()
     if arch != 'x86_64':
-        print("Arch", arch, "not supported yet for offline updates.")
+        print("Arch {} not supported yet for offline updates.".format(arch))
         return offline_list
     else:
         arch = 'amd64'
