@@ -5,14 +5,21 @@
 #   - Updatable offline snaps are properly found
 #   -   and selected in the window
 
+import gi
 import os
 import shutil
 import subprocess
+import time
 import unittest
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
 from pathlib import Path
 
 from wsm import util
+from wsm import wsmapp
+from wsm import wsmwindow
 
 # Assert*() methods here:
 # https://docs.python.org/3/library/unittest.html?highlight=pytest#unittest.TestCase
@@ -39,6 +46,7 @@ class All(unittest.TestCase):
         from_app, from_cmd = self.get_lists(snaps_dir)
         self.assertListEqual(from_app, from_cmd)
 
+    """
     def test_sorted_into_arch_folders(self):
         print() # blank line to set apart app fuction output
         snaps_dir = self.snaps_dir_archless
@@ -60,6 +68,7 @@ class All(unittest.TestCase):
         self.assertListEqual(sorted(list_init), sorted(list_final))
         # Remove temp wasta-offline dir.
         shutil.rmtree(wasta_offline_dir)
+    """
 
     def tearDown(self):
         pass
@@ -130,6 +139,27 @@ class Upd8(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+class ListBoxPane(unittest.TestCase):
+    def setUp(self):
+        #app = wsmapp.app
+        app = ''
+        # fake "app" needs method "populate_listbox_available"
+        self.pane = wsmwindow.InstalledListBoxPane(app)
+
+    #def test_something(self):
+    #    app.populate_listbox_available('a', 'b')
+    #    #for child in self.listbox.get_children():
+    #    #    print(child.name)
+
+    def tearDown(self):
+        pass
+
+    # Stolen from Kiwi
+    def refresh_gui(self, delay=0):
+      while Gtk.events_pending():
+          Gtk.main_iteration_do(self) #block=False
+      time.sleep(delay)
 
 if __name__ == '__main__':
     unittest.main()

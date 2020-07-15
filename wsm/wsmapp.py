@@ -17,6 +17,7 @@ from wsm import handler
 from wsm import guiparts
 from wsm import util
 from wsm import snapd
+from wsm import wsmwindow
 
 
 class WSMApp(Gtk.Application):
@@ -80,7 +81,6 @@ class WSMApp(Gtk.Application):
         util.log_installed_snaps(self.installed_snaps_list)
 
         # Define window and make runtime adjustments.
-        # TODO: The window could be its own class in its own module.
         self.window = self.builder.get_object('window_snap_manager')
         self.window.set_icon_name('wasta-snap-manager')
         self.add_window(self.window)
@@ -88,61 +88,32 @@ class WSMApp(Gtk.Application):
 
         # Hide label_can_update b/c it seems to be confusing, but saving just in case.
         self.label_can_update.hide()
-        # Hide button_remove_snaps b/c it doesn't launch right when installed.
+        # Hide button_remove_snaps b/c it doesn't launch right when run as installed app.
         self.button_remove_snaps.hide()
 
         # Make GUI initial adjustments.
         self.user, self.start_folder = util.guess_offline_source_folder()
         self.button_source_offline.set_current_folder(self.start_folder)
 
-        # Add ListBox widgets.
-        self.listbox_installed = Gtk.ListBox()
-        self.listbox_installed.set_selection_mode(Gtk.SelectionMode.NONE)
-        self.listbox_installed.set_activate_on_single_click(True)
-
-        self.listbox_available = Gtk.ListBox()
-        self.listbox_available.set_selection_mode(Gtk.SelectionMode.NONE)
-
-        # Add viewports for Installed & Available panes.
-        self.wis_vp = Gtk.Viewport()
-        self.wis_vp.add_child(self.builder, self.listbox_installed)
-        self.window_installed_snaps.add_child(self.builder, self.wis_vp)
-        self.rows = self.populate_listbox_installed(self.listbox_installed, self.installed_snaps_list)
-
-        self.was_vp = Gtk.Viewport()
-        self.was_vp.add_child(self.builder, self.listbox_available)
-        self.window_available_snaps.add_child(self.builder, self.was_vp)
+        # Get ListBox "panes" from other module, add to sub-windows, & show.
+        self.avail_lb_pane = wsmwindow.AvailableListBoxPane(self)
+        self.instd_lb_pane = wsmwindow.InstalledListBoxPane(self)
+        #self.window_installed_snaps.add_child(self.builder, self.instd_lb_pane.vp)
+        self.window_installed_snaps.add(self.instd_lb_pane.vp)
+        # Not using "show_all" because of hidden buttons noted above.
         self.window_installed_snaps.show()
-        #self.window_available_snaps.show()
-        self.wis_vp.show()
-
-        # List populated later with self.populate_listbox_available().
-        #   But initial entry added here for user guidance.
-        self.av_row_init = Gtk.ListBoxRow()
-        self.listbox_available.add(self.av_row_init)
-        text = "<span style=\"italic\">Please select an offline folder above.</span>"
-        self.label_av_row_init = Gtk.Label(text)
-        self.label_av_row_init.set_property("use-markup", True)
-        self.av_row_init.add(self.label_av_row_init)
-        # I can't get this to show up, so doing it manually instead.
-        #self.listbox_available.set_placeholder(self.av_row_init)
-        self.was_vp.show_all()
+        self.instd_lb_pane.vp.show_all()
+        self.window_available_snaps.add(self.avail_lb_pane.vp)
+        self.window_available_snaps.show_all()
 
         # Connect GUI signals to Handler class.
-        self.hand = handler.Handler()
-        self.builder.connect_signals(self.hand)
-
+        self.builder.connect_signals(handler.Handler())
+        """
         # Adjust GUI in case of found 'wasta-offline' folder.
         self.updatable_offline_list = util.get_offline_updatable_snaps(self.start_folder)
         if len(self.updatable_offline_list) > 0:
             select_offline_update_rows(self.start_folder, init=True)
-        self.installable_snaps_list = util.get_offline_installable_snaps(self.start_folder)
-        if len(self.installable_snaps_list) > 0:
-            # Remove any existing rows (placeholder, previous folder, etc.).
-            children = self.listbox_available.get_children()
-            for c in children:
-                self.listbox_available.remove(c)
-            self.populate_listbox_available(self.listbox_available, self.installable_snaps_list)
+        """
 
     def do_command_line(self, command_line):
         options = command_line.get_options_dict()
@@ -279,7 +250,7 @@ class WSMApp(Gtk.Application):
             row = guiparts.AvailableSnapRow(snap, summary)
             list_box.add(row)
             install_button = row.button_install_offline
-            install_button.connect("clicked", self.hand.on_install_button_clicked, snap)
+            install_button.connect("clicked", handler.Handler().on_install_button_clicked, snap)
             rows[snap] = index
             index += 1
             row.show_all()
