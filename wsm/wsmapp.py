@@ -13,8 +13,8 @@ from gi.repository import GLib
 from gi.repository import Gtk
 
 from wsm import cmdline
-from wsm import handler
 from wsm import guiparts
+from wsm import handler
 from wsm import util
 from wsm import snapd
 from wsm import wsmwindow
@@ -102,7 +102,8 @@ class WSMApp(Gtk.Application):
         self.window_installed_snaps.add(self.instd_lb_pane.vp)
         # Not using "show_all" because of hidden buttons noted above.
         self.window_installed_snaps.show()
-        self.instd_lb_pane.vp.show_all()
+        # Not using "show_all" here because of unused hidden labels.
+        self.instd_lb_pane.vp.show()
         self.window_available_snaps.add(self.avail_lb_pane.vp)
         self.window_available_snaps.show_all()
 
