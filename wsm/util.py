@@ -151,7 +151,7 @@ def guess_offline_source_folder():
 def get_snap_icon(snap):
     name = snap
     icon_path = ''
-    fallback = '/usr/share/icons/HighContrast/48x48/actions/media-record.png'
+    fallback = 'media-record'
 
     ### 1. Fastest location to try: ${SNAP}/meta/gui.
     snap_root = Path('/snap', name)
@@ -186,9 +186,10 @@ def get_snap_icon(snap):
                     icon_path = Path(str(SNAP) + icon_path[7:])
                     return str(icon_path)
 
-    ### 4. Last resort: choose generic file.
+    ### 4. Last resort: choose fallback icon.
     if not icon_path:
-        icon_path = fallback
+        icon = icon_theme.lookup_icon(fallback, 48, 0)
+        icon_path = icon.get_filename()
 
     return str(icon_path)
 
