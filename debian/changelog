@@ -1,3 +1,9 @@
+wasta-snap-manager (0.2) focal; urgency=medium
+
+  * Fixed online update error when offline snap not available.
+
+ -- Nate Marti <nate_marti@sil.org>  Thu, 16 Jul 2020 18:23:24 +0100
+
 wasta-snap-manager (0.1) focal; urgency=medium
 
   * Initial release.

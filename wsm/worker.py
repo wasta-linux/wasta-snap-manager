@@ -174,6 +174,8 @@ def update_snap_offline(snap_name, updatables):
             pass
 
         status = install_snap_offline(file_path, classic_flag)
+    else:
+        status = 0
     return status
 
 def update_snap_online(snap):
