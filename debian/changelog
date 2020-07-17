@@ -1,3 +1,9 @@
+wasta-snap-manager (0.2.1) focal; urgency=medium
+
+  * Updated conflicting version number for wasta-offline
+
+ -- Nate Marti <nate_marti@sil.org>  Fri, 17 Jul 2020 11:11:03 +0100
+
 wasta-snap-manager (0.2) focal; urgency=medium
 
   * Fixed online update error when offline snap not available.
