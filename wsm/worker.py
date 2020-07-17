@@ -73,13 +73,13 @@ def handle_button_update_snaps_clicked():
         # Update from online source.
         #if snap_name in wsmapp.app.updatable_online_list:
         if snap_name in wsmapp.app.updatable_online_dict.keys():
-            update_snap_online(snap_name)
+            status = update_snap_online(snap_name)
 
         # Post-install.
         spinner.stop()
         spinner.hide()
-        # if install successful:
-        listbox.unselect_row(row)
+        if status == 0:
+            listbox.unselect_row(row)
         #row.hide()
 
 def handle_install_button_clicked(button, snap):
