@@ -194,8 +194,12 @@ def get_snap_icon(snap):
     return str(icon_path)
 
 def get_snap_refresh_list():
-    updatable = [s['name'] for s in snap.refresh_list()]
-    return updatable
+    updatables = [s['name'] for s in snap.refresh_list()]
+    return updatables
+
+def get_snap_refresh_dict():
+    updatables = {s['name']: s['download-size'] for s in snap.refresh_list()}
+    return updatables
 
 def add_item_to_update_list(item, update_list):
     # Convert list to 'set' type to eliminate duplicates.
@@ -337,3 +341,15 @@ def snap_is_installed(snap_name):
             return False
     except KeyError:
         return False
+
+def convert_filesize(input):
+    B_amt = float(input)
+    KB_amt = round(B_amt / 2**10)
+    MB_amt = round(KB_amt / 2**10)
+    if MB_amt > 1:
+        output = ' '.join([str(MB_amt), 'MB'])
+    elif KB_amt > 1:
+        output = ' '.join([str(KB_amt), 'KB'])
+    else:
+        output = ' '.join([str(B_amt), 'B'])
+    return output

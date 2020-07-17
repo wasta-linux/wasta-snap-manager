@@ -50,7 +50,8 @@ class WSMApp(Gtk.Application):
         self.installed_snaps_list = snapd.snap.list()
         self.installable_snaps_list = []
         self.updatable_offline_list = []
-        self.updatable_online_list = []
+        #self.updatable_online_list = []
+        self.updatable_online_dict = {}
 
     def do_startup(self):
         # Define builder and its widgets.
@@ -180,18 +181,26 @@ class WSMApp(Gtk.Application):
     def select_online_update_rows(self):
         installed_snaps = self.installed_snaps_list
         rows = self.rows
-        if len(self.updatable_online_list) > 0:
+        #if len(self.updatable_online_list) > 0:
+        if len(self.updatable_online_dict.keys()) > 0:
             self.listbox_installed.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
-            for snap in self.updatable_online_list:
+            for snap in self.updatable_online_dict.keys():
                 index = rows[snap]
                 row = self.listbox_installed.get_row_at_index(index)
                 self.listbox_installed.select_row(row)
                 box_row = row.get_child()
+                label_note = box_row.get_children()[2]
+                bytes = self.updatable_online_dict[snap]
+                size_str = util.convert_filesize(bytes)
+                text = ' '.join(['<', size_str])
+                label_note.set_text(text)
+                label_note.show()
 
     def deselect_online_update_rows(self):
         installed_snaps = self.installed_snaps_list
         rows = self.rows
-        for snap in self.updatable_online_list:
+        #for snap in self.updatable_online_list:
+        for snap in self.updatable_online_dict.keys():
             index = rows[snap]
             row = self.listbox_installed.get_row_at_index(index)
             self.listbox_installed.unselect_row(row)
@@ -234,7 +243,8 @@ class WSMApp(Gtk.Application):
     def populate_listbox_available(self, list_box, snaps_list):
         rows = {}
         if len(snaps_list) == 0:
-            if len(self.updatable_online_list) == 0 and len(self.updatable_offline_list) == 0:
+            #if len(self.updatable_online_list) == 0 and len(self.updatable_offline_list) == 0:
+            if len(self.updatable_online_dict.keys()) == 0 and len(self.updatable_offline_list) == 0:
                 self.listbox_installed.set_selection_mode(Gtk.SelectionMode.NONE)
             return rows
         if len(self.updatable_offline_list) > 0:

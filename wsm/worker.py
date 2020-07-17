@@ -34,6 +34,7 @@ def handle_button_online_source_toggled(button):
         if util.snap_store_accessible():
             text = ''
             wsmapp.app.updatable_online_list = util.get_snap_refresh_list()
+            wsmapp.app.updatable_online_dict = util.get_snap_refresh_dict()
             wsmapp.app.select_online_update_rows()
         else:
             text = 'No connection to the Snap Store.'
@@ -70,7 +71,8 @@ def handle_button_update_snaps_clicked():
         update_snap_offline(snap_name, updatables)
 
         # Update from online source.
-        if snap_name in wsmapp.app.updatable_online_list:
+        #if snap_name in wsmapp.app.updatable_online_list:
+        if snap_name in wsmapp.app.updatable_online_dict.keys():
             update_snap_online(snap_name)
 
         # Post-install.

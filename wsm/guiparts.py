@@ -20,7 +20,6 @@ class InstalledSnapRow(Gtk.ListBoxRow):
         description = data['summary']
         rev_installed = data['revision']
         rev_available = 'N/A'
-        note = 'rev. ' + rev_installed + ' < ' + rev_available
         flag = data['confinement']
 
         # Define the row.
@@ -38,7 +37,7 @@ class InstalledSnapRow(Gtk.ListBoxRow):
         self.box_info = Gtk.Box(orientation='vertical')
         #label_rev_installed = Gtk.Label(rev_installed)
         #label_rev_available = Gtk.Label(rev_available)
-        self.label_update_note = Gtk.Label(note)
+        self.label_update_note = Gtk.Label('')
 
         # Pack the various parts of the row box.
         self.box_row.pack_start(self.label_icon, False, False, 5)

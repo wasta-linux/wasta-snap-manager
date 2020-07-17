@@ -17,9 +17,9 @@ def update_offline(folder):
     return 0
 
 def update_online():
-    snaps = util.get_snap_refresh_list()
+    snaps = util.get_snap_refresh_dict()
     status = 0
-    for snap in snaps:
+    for snap in snaps.keys():
         print('updating %s' % snap)
         substatus = worker.update_snap_online(snap)
         status += substatus
