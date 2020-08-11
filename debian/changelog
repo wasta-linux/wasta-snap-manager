@@ -1,3 +1,9 @@
+wasta-snap-manager (0.2.2) focal; urgency=medium
+
+  * Hotfix for snap icon lookup error.
+
+ -- Nate Marti <nate_marti@sil.org>  Tue, 11 Aug 2020 18:07:43 +0100
+
 wasta-snap-manager (0.2.1) focal; urgency=medium
 
   * Updated conflicting version number for wasta-offline

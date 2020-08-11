@@ -39,6 +39,11 @@ class Handler():
         for c in children:
             wsmapp.app.listbox_available.remove(c)
 
+        # Return if using unsupported architecture.
+        # TODO: Remove the label from the check_arch() function once multi-arch is supported.
+        if util.check_arch() != 'amd64':
+            return
+
         # Set app-wide variables.
         wsmapp.app.updatable_offline_list = util.get_offline_updatable_snaps(folder)
         wsmapp.app.installable_snaps_list = util.get_offline_installable_snaps(folder)

@@ -171,8 +171,10 @@ def get_snap_icon(snap):
     desktop_files = sorted(Path(SNAP).rglob('*' + name +'*.desktop'), reverse=True)
     desktop_file = desktop_files[0] if desktop_files else Path()
     if icon:
-        icon_path = icon.get_filename()
-        return str(icon_path)
+        filename = icon.get_filename()
+        if Path(filename).is_file():
+            icon_path = filename
+            return str(icon_path)
 
     ### 3. Next try finding icon file name in any .desktop file.
     elif desktop_file.is_file():
@@ -180,11 +182,13 @@ def get_snap_icon(snap):
             contents = file.read()
             icon_line = re.search('^Icon=.*$', contents, re.MULTILINE)
             if icon_line:
-                icon_path = icon_line.group(0).split('=')[1]
-                if icon_path.split('/')[0] == '${SNAP}':
+                icon_file = icon_line.group(0).split('=')[1]
+                if icon_file.split('/')[0] == '${SNAP}':
                     # Relative path given.
-                    icon_path = Path(str(SNAP) + icon_path[7:])
-                    return str(icon_path)
+                    filename = Path(str(SNAP) + icon_file[7:])
+                    if filename.is_file():
+                        icon_path = filename
+                        return str(icon_path)
 
     ### 4. Last resort: choose fallback icon.
     if not icon_path:
@@ -221,6 +225,17 @@ def get_list_from_snaps_folder(dir):
             snaps.append(dictionary)
     return snaps
 
+def check_arch():
+    # Get arch in order to search correct wasta-offline folders.
+    arch = platform.machine()
+    if arch != 'x86_64':
+        label = Gtk.Label('{} architecture not yet supported for offline updates.'.format(arch))
+        wsmapp.app.listbox_available.add(label)
+        label.show()
+    else:
+        arch = 'amd64'
+    return arch
+
 def list_offline_snaps(dir, init=False):
     # Called at 2 different times:
     #   1. 'wasta-offline' found automatically; i.e. init=True
@@ -236,11 +251,9 @@ def list_offline_snaps(dir, init=False):
         return offline_list
 
     # Get arch in order to search correct wasta-offline folders.
+    # TODO: This could be passed as an argument.
     arch = platform.machine()
-    if arch != 'x86_64':
-        print("Arch {} not supported yet for offline updates.".format(arch))
-        return offline_list
-    else:
+    if arch == 'x86_64':
         arch = 'amd64'
 
     # Search the given directory for snaps.
