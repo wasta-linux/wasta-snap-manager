@@ -167,34 +167,31 @@ def get_snap_icon(snap):
 
     ### 2. Next try file name from Gtk.IconTheme.
     icon_theme = Gtk.IconTheme.get_default()
-    icon = icon_theme.lookup_icon(name, 48, 0)
+    icon_theme.append_search_path(str(Path(SNAP, 'usr', 'share', 'icons')))
+
     desktop_files = sorted(Path(SNAP).rglob('*' + name +'*.desktop'), reverse=True)
     desktop_file = desktop_files[0] if desktop_files else Path()
-    if icon:
-        filename = icon.get_filename()
-        if Path(filename).is_file():
-            icon_path = filename
-            return str(icon_path)
-
-    ### 3. Next try finding icon file name in any .desktop file.
-    elif desktop_file.is_file():
+    if desktop_file.is_file():
         with open(desktop_file) as file:
             contents = file.read()
             icon_line = re.search('^Icon=.*$', contents, re.MULTILINE)
             if icon_line:
-                icon_file = icon_line.group(0).split('=')[1]
-                if icon_file.split('/')[0] == '${SNAP}':
+                icon_name = icon_line.group(0).split('=')[1]
+                if icon_name.split('/')[0] == '${SNAP}':
                     # Relative path given.
-                    filename = Path(str(SNAP) + icon_file[7:])
-                    if filename.is_file():
-                        icon_path = filename
-                        return str(icon_path)
+                    icon_name = str(SNAP) + "/" + "/".join(icon_name.split('/')[1:])
+                elif icon_name[0] == '/':
+                    # Relative path given, but masquerading as absolute path.
+                    icon_name = str(SNAP) + icon_name
 
-    ### 4. Last resort: choose fallback icon.
-    if not icon_path:
-        icon = icon_theme.lookup_icon(fallback, 48, 0)
-        icon_path = icon.get_filename()
+                if Path(icon_name).is_file():
+                    icon_path = icon_name
+                elif icon_theme.lookup_icon(icon_name, 48, 0):
+                    icon_path = icon_theme.lookup_icon(icon_name, 48, 0).get_filename()
+                return str(icon_path)
 
+    ### 3. Icon not found. Use fallback icon.
+    icon_path = icon_theme.lookup_icon(fallback, 48, 0).get_filename()
     return str(icon_path)
 
 def get_snap_refresh_list():
