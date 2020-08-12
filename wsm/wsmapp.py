@@ -73,7 +73,8 @@ class WSMApp(Gtk.Application):
     def do_activate(self):
         # Verify execution with elevated privileges.
         if os.geteuid() != 0:
-            print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", __file__, "\n$ sudo", __file__)
+            bin = '/usr/bin/wasta-snap-manager'
+            print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", bin, "\n$ sudo", bin)
             exit(1)
 
         # Start GUI logging

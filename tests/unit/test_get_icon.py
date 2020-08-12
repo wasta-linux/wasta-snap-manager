@@ -12,9 +12,6 @@ from gi.repository import Gtk
 from pathlib import Path
 
 from wsm import snapd
-#from wsm import util
-#from wsm import wsmapp
-#from wsm import wsmwindow
 
 # Assert*() methods here:
 # https://docs.python.org/3/library/unittest.html?highlight=pytest#unittest.TestCase
