@@ -6,7 +6,7 @@ import logging
 import subprocess
 
 from pathlib import Path
-from gi.repository import Gtk, GLib
+from gi.repository import Gdk, GLib, Gtk
 gi.require_version("Gtk", "3.0")
 
 from wsm import snapd
@@ -20,6 +20,7 @@ def handle_button_online_source_toggled(button):
     label = wsmapp.app.label_button_source_online
     grid = wsmapp.app.grid_source
     spinner = Gtk.Spinner(halign=Gtk.Align.START)
+    spinner.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.19, 0.20, 0.23, 1.0))
 
     text = ''
     # Clear the label text if not empty.
@@ -63,6 +64,7 @@ def handle_button_update_snaps_clicked():
         label_update_text = label_update_note.get_text()
 
         spinner = Gtk.Spinner(halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
+        spinner.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.19, 0.20, 0.23, 1.0))
         box_row.pack_end(spinner, False, False, 5)
         label_update_note.hide()
         spinner.show()
@@ -88,6 +90,7 @@ def handle_install_button_clicked(button, snap):
     box_row = button.get_parent()
     row = box_row.get_parent()
     spinner = Gtk.Spinner(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER)
+    spinner.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.19, 0.20, 0.23, 1.0))
     spinner.set_property("width-request", width)
     box_row.pack_end(spinner, False, True, 5)
     button.hide()

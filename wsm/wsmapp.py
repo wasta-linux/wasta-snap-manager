@@ -3,6 +3,7 @@
 import gi
 import logging
 import os
+import subprocess
 
 from pathlib import Path
 current_file_path = Path(__file__)
@@ -128,6 +129,12 @@ class WSMApp(Gtk.Application):
             return 0
 
         if 'version' in options:
+            proc = subprocess.run(
+                ['apt-cache', 'policy', 'wasta-snap-manager'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
+            )
+            print(proc.stdout.decode())
             print('snapd version: %s' % util.get_snapd_version())
             return 0
 

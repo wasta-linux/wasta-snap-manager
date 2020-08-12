@@ -1,5 +1,5 @@
-- [ ] Fix app path suggested when not launched with elevated privileges.
+- [x] Fix app path suggested when not launched with elevated privileges.
 - [x] Shore up the snap icon search function (e.g. it doesn't find skype)
-- [ ] Explicitly set color(s) used either for highlighting rows or for spinner.
+- [x] Explicitly set color used for spinner.
   - The spinner and highlight colors are the same in Ambiance (?) theme, so the spinner is invisible during snap refresh.
 - [ ] Hide disabled snaps from the installed snaps window.

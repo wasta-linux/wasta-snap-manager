@@ -1,3 +1,11 @@
+wasta-snap-manager (0.2.3) focal; urgency=medium
+
+  * Improved snap icon lookup function
+  * Fixed wrong suggested path when run without elevated privileges
+  * Set manual spinner color so it's not hidden under highlighting
+
+ -- Nate Marti <nate_marti@sil.org>  Wed, 12 Aug 2020 15:37:11 +0100
+
 wasta-snap-manager (0.2.2) focal; urgency=medium
 
   * Hotfix for snap icon lookup error.
