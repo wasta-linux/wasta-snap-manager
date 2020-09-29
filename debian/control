@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Nate Marti <nate_marti@sil.org>
 Build-Depends: debhelper (>= 9.0.0)
 Standards-Version: 3.9.7
-Homepage: https://github.com/wasta-linux/wasta-offline
+Homepage: https://github.com/wasta-linux/wasta-snap-manager
 
 Package: wasta-snap-manager
 Architecture: amd64
