@@ -205,6 +205,9 @@ def install_snap_offline(snap_file, classic_flag):
     snap_file_name = base + '.snap'
     assert_file_name = base + '.assert'
     assert_file = Path(dir, assert_file_name)
+    root_type = util.get_root_type()
+    if not root_type:
+        return 1
 
     if not assert_file.is_file() or not snap_file.is_file():
         logging.error('Either %s or %s is missing' % (assert_file_name, snap_file_name))
@@ -214,7 +217,7 @@ def install_snap_offline(snap_file, classic_flag):
     try:
         logging.info('Acknowledging \'%s\'' % assert_file)
         subprocess.run(
-            ['pkexec', 'snap', 'ack', assert_file],
+            [root_type, 'snap', 'ack', assert_file],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT
         )
@@ -226,14 +229,14 @@ def install_snap_offline(snap_file, classic_flag):
         if classic_flag:
             logging.info('Installing/Updating \'%s\' with --classic flag' % snap_file)
             subprocess.run(
-                ['pkexec', 'snap', 'install', '--classic', snap_file],
+                [root_type, 'snap', 'install', '--classic', snap_file],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT
             )
             return 0
         else:
             logging.info('Installing/Updating \'%s\'' % snap_file)
-            subprocess.run(['pkexec', 'snap', 'install', snap_file],
+            subprocess.run([root_type, 'snap', 'install', snap_file],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT
             )
