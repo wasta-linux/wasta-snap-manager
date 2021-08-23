@@ -1,5 +1,6 @@
 """ Signal handler module. """
 
+import logging
 import subprocess
 import threading
 
@@ -79,3 +80,4 @@ class Handler():
         target = worker.handle_install_button_clicked
         self.t_install_snap = threading.Thread(target=target, args=(button, snap))
         self.t_install_snap.start()
+        logging.debug(f"Started installing {snap} in thread {self.t_install_snap}.")
