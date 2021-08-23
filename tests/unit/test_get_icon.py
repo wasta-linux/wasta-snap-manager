@@ -22,11 +22,11 @@ class All(unittest.TestCase):
 
     def test_from_desktop(self):
         desktop_files = self.get_desktop_files(self.get_snap_names())
-        print()
+        # print()
         missing_icons = []
         for desktop_file_item in desktop_files.items():
             name, icon = self.get_icon_from_desktop_file(desktop_file_item)
-            print(name + ':', icon)
+            # print(name + ':', icon)
             icon_file = self.find_icon(name, icon)
             #print(name + ':', icon_file)
             if not Path(icon_file).is_file():
@@ -52,13 +52,13 @@ class All(unittest.TestCase):
         #print(names)
         desktop_files = {}
         for name in names:
-            print('\n' + name + '\n---------------')
+            # print('\n' + name + '\n---------------')
             snap_root = Path('/snap', name)
             subdirs = [s for s in snap_root.iterdir() if s.is_dir()]
             SNAP = sorted(subdirs, reverse=True)[0]
 
             poss_desktop_files = sorted(Path(SNAP).rglob('*' + name +'*.desktop'), reverse=True)
-            print(poss_desktop_files)
+            # print(poss_desktop_files)
             desktop_file = poss_desktop_files[0] if poss_desktop_files else Path()
 
             if desktop_file.is_file():
@@ -89,12 +89,12 @@ class All(unittest.TestCase):
 
         if Path(icon_name).is_file():
             icon_file = icon_name
-            print('file:', icon_file)
+            # print('file:', icon_file)
         elif icon_theme_default.lookup_icon(icon_name, 48, 0):
             icon_file = icon_theme_default.lookup_icon(icon_name, 48, 0).get_filename()
         else:
             # Icon not found.
             icon_file = icon_name
-            print('none:', icon_file)
+            # print('none:', icon_file)
 
         return icon_file
