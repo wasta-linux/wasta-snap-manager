@@ -106,6 +106,7 @@ class Avail(unittest.TestCase):
 
         self.assertListEqual(sorted(availables_by_app), sorted(availables_by_cmd))
 
+    @unittest.skip("incomplete")
     def test_INCOMPLETE_shown(self):
         pass
 
@@ -117,6 +118,10 @@ class Upd8(unittest.TestCase):
         self.fixtures_dir = Path(Path(__file__).parents[0], 'fixtures')
         self.snaps_dir = Path(self.fixtures_dir, 'snaps')
 
+    def tearDown(self):
+        pass
+
+    @unittest.skip("incomplete")
     def test_INCOMPLETE_listed(self):
         """
         snaps_avail_offline = util.get_offline_installable_snaps(self.snaps_dir)
@@ -134,11 +139,9 @@ class Upd8(unittest.TestCase):
         """
         raise Exception("Test not yet implemented.")
 
+    @unittest.skip("incomplete")
     def test_INCOMPLETE_shown(self):
         raise Exception("Test not yet implemented.")
-
-    def tearDown(self):
-        pass
 
 class ListBoxPane(unittest.TestCase):
     def setUp(self):
@@ -147,13 +150,13 @@ class ListBoxPane(unittest.TestCase):
         # fake "app" needs method "populate_listbox_available"
         self.pane = wsmwindow.InstalledListBoxPane(app)
 
+    def tearDown(self):
+        pass
+
     #def test_something(self):
     #    app.populate_listbox_available('a', 'b')
     #    #for child in self.listbox.get_children():
     #    #    print(child.name)
-
-    def tearDown(self):
-        pass
 
     # Stolen from Kiwi
     def refresh_gui(self, delay=0):
