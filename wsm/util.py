@@ -84,7 +84,7 @@ def get_user():
         user = pwd.getpwuid(int(os.environ['PKEXEC_UID'])).pw_name
     except KeyError:
         # if using sudo
-        user = pwd.getpwuid(os.geteuid()).pw_name
+        user = pwd.getpwuid(int(os.environ['SUDO_UID'])).pw_name
     return user
 
 def set_up_logging():
