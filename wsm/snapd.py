@@ -33,7 +33,7 @@ class SnapdAdapter(HTTPAdapter):
 class Snap():
     def __init__(self):
         self.session = requests.Session()
-        self.fake_http = 'http://snapd/'
+        self.fake_http = 'http://snapd'
         self.session.mount(self.fake_http, SnapdAdapter())
 
     def list(self):
