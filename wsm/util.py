@@ -79,13 +79,21 @@ def wasta_offline_snap_cleanup(folder):
     print("Existing snap packages moved into relevant architecture subfolders.")
 
 def get_user():
-    try:
-        # if using pkexec
+    root_type = get_root_type()
+    user = None
+    if root_type == 'pkexec':
         user = pwd.getpwuid(int(os.environ['PKEXEC_UID'])).pw_name
-    except KeyError:
-        # if using sudo
+    elif root_type == 'sudo':
         user = pwd.getpwuid(int(os.environ['SUDO_UID'])).pw_name
     return user
+
+def get_root_type():
+    root_type = None
+    if os.environ.get('PKEXEC_UID', None):
+        root_type = 'pkexec'
+    elif os.environ.get('SUDO_UID', None):
+        root_type = 'sudo'
+    return root_type
 
 def set_up_logging():
     user = get_user()
