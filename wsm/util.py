@@ -95,7 +95,7 @@ def get_root_type():
         root_type = 'sudo'
     return root_type
 
-def set_up_logging():
+def set_up_logging(log_level):
     user = get_user()
     log_path = Path('/home', user, '.local', 'share', 'wasta-snap-manager')
     if not log_path.is_dir():
@@ -107,7 +107,7 @@ def set_up_logging():
     filename = Path(log_path, log_file)
     logging.basicConfig(
         filename=filename,
-        level=logging.INFO,
+        level=log_level,
         format='%(asctime)s %(levelname)s: %(message)s',
         datefmt='%H:%M:%S'
     )
@@ -158,6 +158,7 @@ def guess_offline_source_folder():
 
 def get_snap_icon(snap):
     name = snap
+    logging.debug(f"snap name: {name}")
     icon_path = ''
     fallback = 'media-record'
 
@@ -171,6 +172,7 @@ def get_snap_icon(snap):
         filename = Path(gui_dir, 'icon' + s)
         if filename.is_file():
             icon_path = filename
+            logging.debug(f"icon path: {icon_path}")
             return str(icon_path)
 
     ### 2. Next try file name from Gtk.IconTheme.
@@ -196,10 +198,12 @@ def get_snap_icon(snap):
                     icon_path = icon_name
                 elif icon_theme.lookup_icon(icon_name, 48, 0):
                     icon_path = icon_theme.lookup_icon(icon_name, 48, 0).get_filename()
+                    logging.debug(f"icon path: {icon_path}")
                 return str(icon_path)
 
     ### 3. Icon not found. Use fallback icon.
     icon_path = icon_theme.lookup_icon(fallback, 48, 0).get_filename()
+    logging.debug(f"fallback icon path: {icon_path}")
     return str(icon_path)
 
 def get_snap_refresh_list():
