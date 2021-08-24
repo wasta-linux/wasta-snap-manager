@@ -1,6 +1,7 @@
 """ Window classes """
 
 import gi
+import logging
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -10,6 +11,7 @@ from wsm import util
 
 class InstalledListBoxPane(Gtk.Viewport):
     def __init__(self, app):
+        logging.debug(f"Start of function: __init__ of InstalledListBoxPane")
         # Add ListBox widgets.
         app.listbox_installed = Gtk.ListBox()
         app.listbox_installed.set_selection_mode(Gtk.SelectionMode.NONE)
@@ -25,10 +27,11 @@ class InstalledListBoxPane(Gtk.Viewport):
         app.updatable_offline_list = util.get_offline_updatable_snaps(app.start_folder)
         if len(app.updatable_offline_list) > 0:
             app.select_offline_update_rows(app.start_folder, init=True)
+        logging.debug(f"End of function: __init__ of InstalledListBoxPane")
 
 class AvailableListBoxPane():
     def __init__(self, app):
-
+        logging.debug(f"Start of function: __init__ of AvailableListBoxPane")
         # Add ListBox widget.
         app.listbox_available = Gtk.ListBox()
         app.listbox_available.set_selection_mode(Gtk.SelectionMode.NONE)
@@ -56,3 +59,4 @@ class AvailableListBoxPane():
             for c in children:
                 app.listbox_available.remove(c)
             app.populate_listbox_available(app.listbox_available, app.installable_snaps_list)
+        logging.debug(f"End of function: __init__ of AvailableListBoxPane")
