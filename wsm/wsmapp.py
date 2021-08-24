@@ -78,10 +78,12 @@ class WSMApp(Gtk.Application):
             print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", bin, "\n$ sudo", bin)
             exit(1)
 
-        # Start GUI logging
-        util.set_up_logging()
-        util.log_snapd_version(util.get_snapd_version())
-        util.log_installed_snaps(self.installed_snaps_list)
+        # Start GUI logging.
+        if not self.cmd_args:
+            util.set_up_logging(self.log_level)
+            util.log_snapd_version(util.get_snapd_version())
+            util.log_installed_snaps(self.installed_snaps_list)
+        logging.debug(f"Start of function: app.do_activate")
 
         # Define window and make runtime adjustments.
         self.window = self.builder.get_object('window_snap_manager')
