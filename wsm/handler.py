@@ -28,6 +28,7 @@ class Handler():
         self.t_online_check.start()
 
     def on_button_source_offline_file_set(self, folder_obj):
+        logging.debug(f"Start of function: handler.on_button_source_offline_file_set")
         folder = Path(folder_obj.get_filename())
 
         # Move wasta-offline snaps into arch-specific subfolders for multi-arch support.
@@ -53,6 +54,7 @@ class Handler():
         # Populate available snaps rows.
         lst = wsmapp.app.installable_snaps_list
         wsmapp.app.rows1 = wsmapp.app.populate_listbox_available(wsmapp.app.listbox_available, lst)
+        logging.debug(f"End of function: handler.on_button_source_offline_file_set")
 
     def on_button_update_snaps_clicked(self, *args):
         # Make sure on_button_source_online_toggled has finished before continuing.
