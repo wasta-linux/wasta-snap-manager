@@ -85,17 +85,22 @@ def handle_button_update_snaps_clicked():
         #row.hide()
 
 def handle_install_button_clicked(button, snap):
-    # Adjust GUI items.
+    logging.debug(f"Start of function: worker.handle_install_button_clicked")
+
+    # Get widget pointers.
     width = button.get_allocated_width()
     box_row = button.get_parent()
     row = box_row.get_parent()
+    listbox = wsmapp.app.listbox_installed
+
+    # Adjust widgets.
     spinner = Gtk.Spinner(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER)
     spinner.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.19, 0.20, 0.23, 1.0))
     spinner.set_property("width-request", width)
-    box_row.pack_end(spinner, False, True, 5)
-    button.hide()
-    spinner.show()
-    spinner.start()
+    GLib.idle_add(box_row.pack_end, spinner, False, True, 5)
+    GLib.idle_add(button.hide)
+    GLib.idle_add(spinner.show)
+    GLib.idle_add(spinner.start)
 
     # Get snap and assert files.
     lst = wsmapp.app.installable_snaps_list
@@ -106,33 +111,36 @@ def handle_install_button_clicked(button, snap):
     # Read /meta/snap.yaml in snap file to get 'core' and 'prerequisites'.
     # TODO: This only returns 1 preprequisite; i.e. "default-provider: <prerequisite>".
     #       Could there be more?
-    offline_snap_details = (util.get_offline_snap_details(file_path))
+    offline_snap_details = util.get_offline_snap_details(file_path)
+    logging.debug(f"snap details: {offline_snap_details}")
 
-    classic_flag=False
-    try:
-        confinement = offline_snap_details['confinement']
-        if confinement == 'classic':
-            classic_flag=True
-    except KeyError:
-        pass
+    confinement = offline_snap_details.get('confinement')
+    classic_flag = False
+    if confinement == 'classic':
+        classic_flag = True
+    logging.debug(f"Confinement for {snap}: {confinement}")
 
     # Install 'core' and 'prerequisites', if necessary.
     ret = 0 # initialize return code list
-    try:
-        base = offline_snap_details['base']
-    except KeyError: # this should never happen
-        base = 'core'
+    base = offline_snap_details.get('base')
+    if not base:
+        logging.error(f"Couldn't determine base snap. Aborting install/update.")
+        return 1
+    logging.debug(f"Snap base for {snap}: {base}")
+
+    # Try to install base snap, if needed.
     if not util.snap_is_installed(base):
+        logging.debug(f"Installing base snap: {base}")
         base_paths = [entry['file_path'] for entry in lst if entry['name'] == base]
         base_path = Path(base_paths[0])
         ret += install_snap_offline(base_path, classic_flag)
         if ret == 0:
             # TODO: Remove base from available list.
             # Re-populate installed snaps window.
-            listbox = wsmapp.app.listbox_installed
-            #wsmapp.populate_listbox_installed(listbox, snapd.snap.list())
-            wsmapp.app.populate_listbox_installed(listbox, snapd.snap.list())
+            GLib.idle_add(wsmapp.app.populate_listbox_installed, listbox, snapd.snap.list())
     try:
+        # Try to install prerequisite snap, if needed.
+        #   TODO: This assumes there will only be 1 prereq.
         prereq = offline_snap_details['prerequisites']
         if not util.snap_is_installed(prereq):
             prereq_paths = [entry['file_path'] for entry in lst if entry['name'] == prereq]
@@ -141,27 +149,28 @@ def handle_install_button_clicked(button, snap):
             if ret == 0:
                 # TODO: if successful, remove prereq from available list.
                 # Re-populate installed snaps window.
-                listbox = wsmapp.app.listbox_installed
-                #wsmapp.populate_listbox_installed(listbox, snapd.snap.list())
-                wsmapp.app.populate_listbox_installed(listbox, snapd.snap.list())
+                GLib.idle_add(wsmapp.app.populate_listbox_installed, listbox, snapd.snap.list())
     except KeyError: # no prerequisites
         pass
 
     # Install offline snap itself.
+    logging.debug(f"Installing snap: {snap}")
     ret += install_snap_offline(file_path, classic_flag)
-    if ret == 0:
-        # Re-populate installed snaps window.
-        listbox = wsmapp.app.listbox_installed
-        #wsmapp.populate_listbox_installed(listbox, snapd.snap.list())
-        wsmapp.app.populate_listbox_installed(listbox, snapd.snap.list())
+    logging.debug(f"Installation of {snap} terminated with status {ret}.")
 
     # Post-install.
-    spinner.stop()
-    spinner.hide()
+    logging.debug(f"Stopping & hiding spinner.")
+    GLib.idle_add(spinner.stop)
+    GLib.idle_add(spinner.hide)
     if ret == 0: # successful installation
-        row.hide()
+        # Re-populate installed snaps window.
+        logging.debug(f"Removing installed snap from available list.")
+        GLib.idle_add(row.hide)
+        logging.debug(f"Repopulating installed snap listbox.")
+        GLib.idle_add(wsmapp.app.populate_listbox_installed, listbox, snapd.snap.list())
     else: # failed installation
-        button.show()
+        GLib.idle_add(button.show)
+    logging.debug(f"End of function: worker.handle_install_button_clicked")
 
 def update_snap_offline(snap_name, updatables):
     offline_names = [i['name'] for i in updatables]
