@@ -65,10 +65,10 @@ def handle_button_update_snaps_clicked():
 
         spinner = Gtk.Spinner(halign=Gtk.Align.START, valign=Gtk.Align.CENTER)
         spinner.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.19, 0.20, 0.23, 1.0))
-        box_row.pack_end(spinner, False, False, 5)
-        label_update_note.hide()
-        spinner.show()
-        spinner.start()
+        GLib.idle_add(box_row.pack_end, spinner, False, False, 5)
+        GLib.idle_add(label_update_note.hide)
+        GLib.idle_add(spinner.show)
+        GLib.idle_add(spinner.start)
 
         update_snap_offline(snap_name, updatables)
 
@@ -78,10 +78,10 @@ def handle_button_update_snaps_clicked():
             status = update_snap_online(snap_name)
 
         # Post-install.
-        spinner.stop()
-        spinner.hide()
+        GLib.idle_add(spinner.stop)
+        GLib.idle_add(spinner.hide)
         if status == 0:
-            listbox.unselect_row(row)
+            GLib.idle_add(listbox.unselect_row, row)
         #row.hide()
 
 def handle_install_button_clicked(button, snap):
