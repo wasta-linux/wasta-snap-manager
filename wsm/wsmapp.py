@@ -4,6 +4,7 @@ import gi
 import logging
 import os
 import subprocess
+import threading
 
 from pathlib import Path
 current_file_path = Path(__file__)
@@ -236,6 +237,13 @@ class WSMApp(Gtk.Application):
 
     def populate_listbox_installed(self, list_box, snaps_list):
         logging.debug(f"Start of function: populate_listbox_installed")
+
+        # Check thread status.
+        main_thread = True
+        if threading.current_thread() != threading.main_thread():
+            main_thread = False
+        logging.debug(f"Function running in main thread?: {main_thread}")
+
         # Create dictionary of relevant info: icon, name, description, revision.
         contents_dict = util.snaps_list_to_dict(snaps_list, self)
 
@@ -243,7 +251,10 @@ class WSMApp(Gtk.Application):
         try:
             children = list_box.get_children()
             for c in children:
-                list_box.remove(c)
+                if main_thread:
+                    list_box.remove(c)
+                else:
+                    GLib.idle_add(list_box.remove, c)
         except AttributeError:
             pass
 
@@ -252,38 +263,19 @@ class WSMApp(Gtk.Application):
         count = 0
         for snap in sorted(contents_dict.keys()):
             row = guiparts.InstalledSnapRow(contents_dict[snap])
-            list_box.add(row)
-            row.show()
+            if main_thread:
+                list_box.add(row)
+                row.show()
+            else:
+                GLib.idle_add(list_box.add, row)
+                GLib.idle_add(row.show)
             rows[snap] = count
             count += 1
-        list_box.show()
+        if main_thread:
+            list_box.show()
+        else:
+            GLib.idle_add(list_box.show)
         logging.debug(f"End of function: populate_listbox_installed")
-        return rows
-
-    def populate_listbox_installed_t(self, list_box, snaps_list):
-        logging.debug(f"Start of function: populate_listbox_installed_t")
-        # Create dictionary of relevant info: icon, name, description, revision.
-        contents_dict = util.snaps_list_to_dict(snaps_list, self)
-
-        # Remove any existing rows.
-        try:
-            children = list_box.get_children()
-            for c in children:
-                GLib.idle_add(list_box.remove, c)
-        except AttributeError:
-            pass
-
-        # Build each new listbox row.
-        rows = {}
-        count = 0
-        for snap in sorted(contents_dict.keys()):
-            row = guiparts.InstalledSnapRow(contents_dict[snap])
-            GLib.idle_add(list_box.add, row)
-            GLib.idle_add(row.show)
-            rows[snap] = count
-            count += 1
-        GLib.idle_add(list_box.show)
-        logging.debug(f"End of function: populate_listbox_installed_t")
         return rows
 
     def populate_listbox_available(self, list_box, snaps_list):

@@ -137,7 +137,7 @@ def handle_install_button_clicked(button, snap):
         if ret == 0:
             # TODO: Remove base from available list.
             # Re-populate installed snaps window.
-            wsmapp.app.populate_listbox_installed_t(listbox, snapd.snap.list())
+            wsmapp.app.populate_listbox_installed(listbox, snapd.snap.list())
     try:
         # Try to install prerequisite snap, if needed.
         #   TODO: This assumes there will only be 1 prereq.
@@ -149,7 +149,7 @@ def handle_install_button_clicked(button, snap):
             if ret == 0:
                 # TODO: if successful, remove prereq from available list.
                 # Re-populate installed snaps window.
-                wsmapp.app.populate_listbox_installed_t(listbox, snapd.snap.list())
+                wsmapp.app.populate_listbox_installed(listbox, snapd.snap.list())
     except KeyError: # no prerequisites
         pass
 
@@ -165,7 +165,7 @@ def handle_install_button_clicked(button, snap):
         # Re-populate installed snaps window.
         logging.debug(f"Removing installed snap from available list.")
         GLib.idle_add(row.hide)
-        wsmapp.app.populate_listbox_installed_t(listbox, snapd.snap.list())
+        wsmapp.app.populate_listbox_installed(listbox, snapd.snap.list())
     else: # failed installation
         GLib.idle_add(button.show)
     logging.debug(f"End of function: worker.handle_install_button_clicked")
