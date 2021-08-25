@@ -36,6 +36,3 @@ class All(unittest.TestCase):
         # Remove testing UID if set by test.
         if not uid_init:
             del os.environ['SUDO_UID']
-
-    def test_from_meta_gui(self):
-        pass
