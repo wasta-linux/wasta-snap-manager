@@ -156,11 +156,10 @@ def guess_offline_source_folder():
         begin = alt_begin
     return user, begin.as_posix()
 
-def get_snap_icon(snap):
+def get_snap_icon(snap, app):
     name = snap
     logging.debug(f"snap name: {name}")
     icon_path = ''
-    fallback = 'media-record'
 
     ### 1. Fastest location to try: ${SNAP}/meta/gui.
     snap_root = Path('/snap', name)
@@ -176,8 +175,7 @@ def get_snap_icon(snap):
             return str(icon_path)
 
     ### 2. Next try file name from Gtk.IconTheme.
-    icon_theme = Gtk.IconTheme.get_default()
-    icon_theme.append_search_path(str(Path(SNAP, 'usr', 'share', 'icons')))
+    app.icon_theme.append_search_path(str(Path(SNAP, 'usr', 'share', 'icons')))
 
     desktop_files = sorted(Path(SNAP).rglob('*' + name +'*.desktop'), reverse=True)
     desktop_file = desktop_files[0] if desktop_files else Path()
@@ -196,15 +194,14 @@ def get_snap_icon(snap):
 
                 if Path(icon_name).is_file():
                     icon_path = icon_name
-                elif icon_theme.lookup_icon(icon_name, 48, 0):
-                    icon_path = icon_theme.lookup_icon(icon_name, 48, 0).get_filename()
+                elif app.icon_theme.lookup_icon(icon_name, 48, 0):
+                    icon_path = app.icon_theme.lookup_icon(icon_name, 48, 0).get_filename()
                     logging.debug(f"icon path: {icon_path}")
                 return str(icon_path)
 
     ### 3. Icon not found. Use fallback icon.
-    icon_path = icon_theme.lookup_icon(fallback, 48, 0).get_filename()
-    logging.debug(f"fallback icon path: {icon_path}")
-    return str(icon_path)
+    logging.debug(f"Icon not found. Using fallback icon.")
+    return str(app.fallback_icon_path)
 
 def get_snap_refresh_list():
     updatables = [s['name'] for s in snap.refresh_list()]
@@ -245,12 +242,12 @@ def check_arch():
         arch = 'amd64'
     return arch
 
-def snaps_list_to_dict(snaps_list):
+def snaps_list_to_dict(snaps_list, fallback_icon_path):
     """Create dictionary of relevant info: icon, name, description, revision."""
     contents_dict = {}
     for entry in snaps_list:
         name = entry['name']
-        icon_path = get_snap_icon(name)
+        icon_path = get_snap_icon(name, fallback_icon_path)
         contents_dict[name] = {
             'icon': icon_path,
             'name': name,

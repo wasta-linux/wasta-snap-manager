@@ -57,7 +57,9 @@ class WSMApp(Gtk.Application):
         self.updatable_offline_list = []
         #self.updatable_online_list = []
         self.updatable_online_dict = {}
-        # self.log_level = logging.INFO
+        self.icon_theme = Gtk.IconTheme.get_default()
+        themed_icon = self.icon_theme.lookup_icon('media-record', 48, 0)
+        self.fallback_icon_path = themed_icon.get_filename()
 
     def do_startup(self):
         # Define builder and its widgets.
@@ -234,6 +236,9 @@ class WSMApp(Gtk.Application):
 
     def populate_listbox_installed(self, list_box, snaps_list):
         logging.debug(f"Start of function: populate_listbox_installed")
+        # Create dictionary of relevant info: icon, name, description, revision.
+        contents_dict = util.snaps_list_to_dict(snaps_list, self)
+
         # Remove any existing rows.
         try:
             children = list_box.get_children()
@@ -242,11 +247,9 @@ class WSMApp(Gtk.Application):
         except AttributeError:
             pass
 
+        # Build each new listbox row.
         rows = {}
         count = 0
-        # Create dictionary of relevant info: icon, name, description, revision.
-        contents_dict = util.snaps_list_to_dict(snaps_list)
-        # Use this dictionary to build each listbox row.
         for snap in sorted(contents_dict.keys()):
             row = guiparts.InstalledSnapRow(contents_dict[snap])
             list_box.add(row)
@@ -259,6 +262,9 @@ class WSMApp(Gtk.Application):
 
     def populate_listbox_installed_t(self, list_box, snaps_list):
         logging.debug(f"Start of function: populate_listbox_installed_t")
+        # Create dictionary of relevant info: icon, name, description, revision.
+        contents_dict = util.snaps_list_to_dict(snaps_list, self)
+
         # Remove any existing rows.
         try:
             children = list_box.get_children()
@@ -267,11 +273,9 @@ class WSMApp(Gtk.Application):
         except AttributeError:
             pass
 
+        # Build each new listbox row.
         rows = {}
         count = 0
-        # Create dictionary of relevant info: icon, name, description, revision.
-        contents_dict = util.snaps_list_to_dict(snaps_list)
-        # Use this dictionary to build each listbox row.
         for snap in sorted(contents_dict.keys()):
             row = guiparts.InstalledSnapRow(contents_dict[snap])
             GLib.idle_add(list_box.add, row)
