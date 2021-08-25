@@ -58,6 +58,3 @@ class Snap():
         payload = '/v2/system-info'
         result = self.session.get(self.fake_http + payload).json()['result']
         return result
-
-
-snap = Snap()

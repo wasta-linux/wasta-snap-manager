@@ -18,11 +18,11 @@ from gi.repository import Gtk
 from pathlib import Path
 
 from wsm import wsmapp
-from wsm.snapd import snap
+from wsm import snapd
+snapctl = snapd.Snap()
 
 
 def wasta_offline_snap_cleanup(folder):
-    print('Checking for snaps in {}'.format(folder))
     logging.info('Ensuring that snap packages are sorted into arch-specific subfolders.')
     snaps_dir = Path(folder, 'local-cache', 'snaps')
     snaps = get_list_from_snaps_folder(snaps_dir)
@@ -123,7 +123,7 @@ def log_installed_snaps(snaps):
         logging.info('\t%s (%s)' % (k, v))
 
 def get_snapd_version():
-    info = snap.system_info()
+    info = snapctl.system_info()
     version = info['version']
     return version
 
@@ -204,11 +204,13 @@ def get_snap_icon(snap, app):
     return str(app.fallback_icon_path)
 
 def get_snap_refresh_list():
-    updatables = [s['name'] for s in snap.refresh_list()]
+    # updatables = [s['name'] for s in snap.refresh_list()]
+    updatables = [s['name'] for s in snapctl.refresh_list()]
     return updatables
 
 def get_snap_refresh_dict():
-    updatables = {s['name']: s['download-size'] for s in snap.refresh_list()}
+    # updatables = {s['name']: s['download-size'] for s in snap.refresh_list()}
+    updatables = {s['name']: s['download-size'] for s in snapctl.refresh_list()}
     return updatables
 
 def add_item_to_update_list(item, update_list):
@@ -367,7 +369,8 @@ def get_offline_snap_details(snapfile):
     return output_dict
 
 def snap_is_installed(snap_name):
-    response = snap.info(snap_name)
+    # response = snap.info(snap_name)
+    response = snapctl.info(snap_name)
     try:
         if response['name'] == snap_name:
             return True

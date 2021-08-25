@@ -52,11 +52,11 @@ class WSMApp(Gtk.Application):
             self.ui_dir = str(current_file_path.parents[1] / 'data' / 'ui')
 
         # Define app-wide variables.
+        snapctl = snapd.Snap()
         self.runmode = ''
-        self.installed_snaps_list = snapd.snap.list()
+        self.installed_snaps_list = snapctl.list()
         self.installable_snaps_list = []
         self.updatable_offline_list = []
-        #self.updatable_online_list = []
         self.updatable_online_dict = {}
         self.icon_theme = Gtk.IconTheme.get_default()
         themed_icon = self.icon_theme.lookup_icon('media-record', 48, 0)
