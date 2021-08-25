@@ -15,12 +15,12 @@ class InstalledSnapRow(Gtk.ListBoxRow):
         self.data = data
 
         # Parse the input data.
-        icon = data['icon']
-        snap = data['name']
-        description = data['summary']
-        rev_installed = data['revision']
+        icon = self.data['icon']
+        snap = self.data['name']
+        description = self.data['summary']
+        rev_installed = self.data['revision']
         rev_available = 'N/A'
-        flag = data['confinement']
+        flag = self.data['confinement']
 
         # Define the row.
         self.box_row = Gtk.Box(orientation='horizontal')
