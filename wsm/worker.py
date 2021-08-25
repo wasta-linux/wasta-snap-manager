@@ -95,8 +95,8 @@ def handle_install_button_clicked(button, snap):
 
     # Adjust widgets.
     spinner = Gtk.Spinner(halign=Gtk.Align.CENTER, valign=Gtk.Align.CENTER)
-    spinner.override_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.19, 0.20, 0.23, 1.0))
-    spinner.set_property("width-request", width)
+    GLib.idle_add(spinner.override_color, Gtk.StateFlags.NORMAL, Gdk.RGBA(0.19, 0.20, 0.23, 1.0))
+    GLib.idle_add(spinner.set_property, "width-request", width)
     GLib.idle_add(box_row.pack_end, spinner, False, True, 5)
     GLib.idle_add(button.hide)
     GLib.idle_add(spinner.show)
@@ -159,7 +159,6 @@ def handle_install_button_clicked(button, snap):
     logging.debug(f"Installation of {snap} terminated with status {ret}.")
 
     # Post-install.
-    logging.debug(f"Stopping & hiding spinner.")
     GLib.idle_add(spinner.stop)
     GLib.idle_add(spinner.hide)
     if ret == 0: # successful installation
