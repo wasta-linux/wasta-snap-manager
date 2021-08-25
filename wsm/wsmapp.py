@@ -57,6 +57,7 @@ class WSMApp(Gtk.Application):
         self.updatable_offline_list = []
         #self.updatable_online_list = []
         self.updatable_online_dict = {}
+        # self.log_level = logging.INFO
 
     def do_startup(self):
         # Define builder and its widgets.
@@ -75,19 +76,84 @@ class WSMApp(Gtk.Application):
         self.window_available_snaps = self.builder.get_object("scrolled_window_available")
         self.label_can_update = self.builder.get_object('label_can_update')
 
+    def do_command_line(self, command_line):
+        options = command_line.get_options_dict()
+        self.cmd_args = options.end().unpack()
+        self.log_level = logging.INFO
+
+        if 'version' in self.cmd_args:
+            proc = subprocess.run(
+                ['apt-cache', 'policy', 'wasta-snap-manager'],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT
+            )
+            print(proc.stdout.decode())
+            print('snapd version: %s' % util.get_snapd_version())
+            return 0
+
+        # Verify execution with elevated privileges.
+        if os.geteuid() != 0:
+            print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", __file__, "\n$ sudo", __file__)
+            exit(1)
+
+        # Set loglevel.
+        self.log_level = logging.INFO
+        if 'debug' in self.cmd_args:
+            self.log_level = logging.DEBUG
+
+        # Set up logging.
+        util.set_up_logging(self.log_level)
+        util.log_snapd_version(util.get_snapd_version())
+        util.log_installed_snaps(self.installed_snaps_list)
+
+        if not self.cmd_args:
+            # No command line args passed: run GUI.
+            self.activate()
+            return 0
+
+        # Give terminal guidance for tracking updates.
+        print('\nHint: To view update progress, open a new terminal and type:')
+        print('snap changes')
+        print('The last item on the list will be the in-progress update.')
+        print('Watch the progress of this particular change with:')
+        print('snap watch [number]\n')
+
+        # Run offline and then online updates, if indicated.
+        #   TODO: Needs testing.
+        status = 0
+        early_return = False
+        if 'snaps-dir' in self.cmd_args:
+            early_return = True
+            # Run offline updates, then continue.
+            folder = self.cmd_args['snaps-dir']
+            # Move snaps into arch-specific subfolders for multi-arch support.
+            util.wasta_offline_snap_cleanup(folder)
+            # Update snaps from wasta-offline folder.
+            status += cmdline.update_offline(folder)
+            if status != 0:
+                return status
+
+        if 'online' in self.cmd_args:
+            # Run online updates, then exit.
+            status = cmdline.update_online()
+            return status
+
+        # Return now if offline updates were done.
+        if early_return:
+            return status
+
+        # Run GUI if other options were passed.
+        self.activate()
+        return status
+
     def do_activate(self):
+        logging.debug(f"Start of function: app.do_activate")
+
         # Verify execution with elevated privileges.
         if os.geteuid() != 0:
             bin = '/usr/bin/wasta-snap-manager'
             print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", bin, "\n$ sudo", bin)
             exit(1)
-
-        # Start GUI logging.
-        if not self.cmd_args:
-            util.set_up_logging(self.log_level)
-            util.log_snapd_version(util.get_snapd_version())
-            util.log_installed_snaps(self.installed_snaps_list)
-        logging.debug(f"Start of function: app.do_activate")
 
         # Define window and make runtime adjustments.
         self.window = self.builder.get_object('window_snap_manager')
@@ -118,62 +184,7 @@ class WSMApp(Gtk.Application):
 
         # Connect GUI signals to Handler class.
         self.builder.connect_signals(handler.Handler())
-        """
-        # Adjust GUI in case of found 'wasta-offline' folder.
-        self.updatable_offline_list = util.get_offline_updatable_snaps(self.start_folder)
-        if len(self.updatable_offline_list) > 0:
-            select_offline_update_rows(self.start_folder, init=True)
-        """
-
-    def do_command_line(self, command_line):
-        options = command_line.get_options_dict()
-        options = options.end().unpack()
-
-        if not options:
-            # No command line args passed: run GUI.
-            self.activate()
-            return 0
-
-        if 'version' in options:
-            proc = subprocess.run(
-                ['apt-cache', 'policy', 'wasta-snap-manager'],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT
-            )
-            print(proc.stdout.decode())
-            print('snapd version: %s' % util.get_snapd_version())
-            return 0
-
-        # Verify execution with elevated privileges.
-        if os.geteuid() != 0:
-            print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", __file__, "\n$ sudo", __file__)
-            exit(1)
-
-        # Set up logging.
-        util.set_up_logging()
-        util.log_snapd_version(util.get_snapd_version())
-        util.log_installed_snaps(self.installed_snaps_list)
-
-        # Give terminal guidance for tracking updates.
-        print('\nHint: To view update progress, open a new terminal and type:')
-        print('$ snap changes')
-        print('The last item on the list will be the in-progress update.')
-        print('Watch the progress of this particular change with:')
-        print('$ snap watch [number]\n')
-
-        # Run offline and then online updates, if indicated.
-        for opt in options:
-            if opt == 'snaps-dir':
-                folder = options['snaps-dir']
-                # Move snaps into arch-specific subfolders for multi-arch support.
-                util.wasta_offline_snap_cleanup(folder)
-                # Update snaps from wasta-offline folder.
-                status = cmdline.update_offline(folder)
-                if status != 0:
-                    return status
-            elif opt == 'online':
-                status = cmdline.update_online()
-        return status
+        logging.debug(f"End of function: app.do_activate")
 
     def select_offline_update_rows(self, source_folder, init=False):
         rows = self.rows
@@ -234,17 +245,7 @@ class WSMApp(Gtk.Application):
         rows = {}
         count = 0
         # Create dictionary of relevant info: icon, name, description, revision.
-        contents_dict = {}
-        for entry in snaps_list:
-            name = entry['name']
-            icon_path = util.get_snap_icon(name)
-            contents_dict[name] = {
-                'icon': icon_path,
-                'name': name,
-                'summary': entry['summary'],
-                'revision': entry['revision'],
-                'confinement': entry['confinement'],
-            }
+        contents_dict = util.snaps_list_to_dict(snaps_list)
         # Use this dictionary to build each listbox row.
         for snap in sorted(contents_dict.keys()):
             row = guiparts.InstalledSnapRow(contents_dict[snap])
@@ -254,6 +255,31 @@ class WSMApp(Gtk.Application):
             count += 1
         list_box.show()
         logging.debug(f"End of function: populate_listbox_installed")
+        return rows
+
+    def populate_listbox_installed_t(self, list_box, snaps_list):
+        logging.debug(f"Start of function: populate_listbox_installed_t")
+        # Remove any existing rows.
+        try:
+            children = list_box.get_children()
+            for c in children:
+                GLib.idle_add(list_box.remove, c)
+        except AttributeError:
+            pass
+
+        rows = {}
+        count = 0
+        # Create dictionary of relevant info: icon, name, description, revision.
+        contents_dict = util.snaps_list_to_dict(snaps_list)
+        # Use this dictionary to build each listbox row.
+        for snap in sorted(contents_dict.keys()):
+            row = guiparts.InstalledSnapRow(contents_dict[snap])
+            GLib.idle_add(list_box.add, row)
+            GLib.idle_add(row.show)
+            rows[snap] = count
+            count += 1
+        GLib.idle_add(list_box.show)
+        logging.debug(f"End of function: populate_listbox_installed_t")
         return rows
 
     def populate_listbox_available(self, list_box, snaps_list):

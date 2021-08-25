@@ -245,6 +245,21 @@ def check_arch():
         arch = 'amd64'
     return arch
 
+def snaps_list_to_dict(snaps_list):
+    """Create dictionary of relevant info: icon, name, description, revision."""
+    contents_dict = {}
+    for entry in snaps_list:
+        name = entry['name']
+        icon_path = get_snap_icon(name)
+        contents_dict[name] = {
+            'icon': icon_path,
+            'name': name,
+            'summary': entry['summary'],
+            'revision': entry['revision'],
+            'confinement': entry['confinement'],
+        }
+    return contents_dict
+
 def list_offline_snaps(dir, init=False):
     # Called at 2 different times:
     #   1. 'wasta-offline' found automatically; i.e. init=True
