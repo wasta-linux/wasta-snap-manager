@@ -40,6 +40,10 @@ class WSMApp(Gtk.Application):
             'online', ord('i'), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
             'Update snaps from the online Snap Store.', None
         )
+        self.add_main_option(
+            'debug', ord('d'), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+            "Set log level to DEBUG", None
+        )
 
         # Get UI location based on current file location.
         self.ui_dir = '/usr/share/wasta-snap-manager/ui'
@@ -218,6 +222,7 @@ class WSMApp(Gtk.Application):
             self.listbox_installed.set_selection_mode(Gtk.SelectionMode.NONE)
 
     def populate_listbox_installed(self, list_box, snaps_list):
+        logging.debug(f"Start of function: populate_listbox_installed")
         # Remove any existing rows.
         try:
             children = list_box.get_children()
@@ -233,12 +238,12 @@ class WSMApp(Gtk.Application):
         for entry in snaps_list:
             name = entry['name']
             icon_path = util.get_snap_icon(name)
-            contents_dict[entry['name']] = {
+            contents_dict[name] = {
                 'icon': icon_path,
                 'name': name,
                 'summary': entry['summary'],
                 'revision': entry['revision'],
-                'confinement': entry['confinement']
+                'confinement': entry['confinement'],
             }
         # Use this dictionary to build each listbox row.
         for snap in sorted(contents_dict.keys()):
@@ -248,6 +253,7 @@ class WSMApp(Gtk.Application):
             rows[snap] = count
             count += 1
         list_box.show()
+        logging.debug(f"End of function: populate_listbox_installed")
         return rows
 
     def populate_listbox_available(self, list_box, snaps_list):
