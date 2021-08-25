@@ -1,5 +1,5 @@
-- [x] Fix app path suggested when not launched with elevated privileges.
-- [x] Shore up the snap icon search function (e.g. it doesn't find skype)
-- [x] Explicitly set color used for spinner.
-  - The spinner and highlight colors are the same in Ambiance (?) theme, so the spinner is invisible during snap refresh.
+- [ ] Fix glitchy icon flashing
+  - Seems that getting a given icon by name from the current theme is nondeterministic. Not sure of a solution.
+- [ ] Provide way to install snap directly from command line.
+- [ ] Install package using dh-python rather than debian/install file.
 - [ ] Hide disabled snaps from the installed snaps window.
