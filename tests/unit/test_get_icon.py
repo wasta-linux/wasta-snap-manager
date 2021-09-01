@@ -18,6 +18,10 @@ from wsm import snapd
 
 class All(unittest.TestCase):
     def setUp(self):
+        # Get list of snap dictionaries.
+        self.snaps = snapd.Snap().list()
+
+    def tearDown(self):
         pass
 
     def test_from_desktop(self):
@@ -37,14 +41,9 @@ class All(unittest.TestCase):
     def test_from_meta_gui(self):
         pass
 
-    def tearDown(self):
-        pass
-
     def get_snap_names(self):
-        # Get list of snap dictionaries.
-        snaps = snapd.snap.list()
         # Get list of snap names from snap dictionaries.
-        names = [snap['name'] for snap in snaps]
+        names = [snap['name'] for snap in self.snaps]
         return names
 
     def get_desktop_files(self, names):
