@@ -348,6 +348,8 @@ def cat_yaml(snapfile):
     return contents
 
 def get_offline_snap_details(snapfile):
+    if not snapfile:
+        return False
     contents = cat_yaml(snapfile).splitlines()
     p = Path(snapfile)
     name, revision = p.stem.split('_')

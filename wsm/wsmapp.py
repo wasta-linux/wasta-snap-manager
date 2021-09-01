@@ -19,6 +19,7 @@ from wsm import guiparts
 from wsm import handler
 from wsm import util
 from wsm import snapd
+from wsm import worker
 from wsm import wsmwindow
 
 
@@ -30,20 +31,20 @@ class WSMApp(Gtk.Application):
         )
 
         self.add_main_option(
-            'version', ord('V'), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
-            'Print snapd version number.', None
-        )
-        self.add_main_option(
-            'snaps-dir', ord('s'), GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
-            'Update snaps from offline folder.', '/path/to/wasta-offline'
+            'debug', ord('d'), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+            "Set log level to DEBUG", None
         )
         self.add_main_option(
             'online', ord('i'), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
             'Update snaps from the online Snap Store.', None
         )
         self.add_main_option(
-            'debug', ord('d'), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
-            "Set log level to DEBUG", None
+            'snaps-dir', ord('s'), GLib.OptionFlags.NONE, GLib.OptionArg.STRING,
+            'Update snaps from offline folder.', '/path/to/wasta-offline'
+        )
+        self.add_main_option(
+            'version', ord('V'), GLib.OptionFlags.NONE, GLib.OptionArg.NONE,
+            'Print snapd version number.', None
         )
 
         # Get UI location based on current file location.
@@ -80,11 +81,11 @@ class WSMApp(Gtk.Application):
         self.label_can_update = self.builder.get_object('label_can_update')
 
     def do_command_line(self, command_line):
-        options = command_line.get_options_dict()
-        self.cmd_args = options.end().unpack()
+        self.cmd_args = command_line.get_arguments()
+        self.cmd_opts = command_line.get_options_dict().end().unpack()
         self.log_level = logging.INFO
 
-        if 'version' in self.cmd_args:
+        if 'version' in self.cmd_opts:
             proc = subprocess.run(
                 ['apt-cache', 'policy', 'wasta-snap-manager'],
                 stdout=subprocess.PIPE,
@@ -101,7 +102,7 @@ class WSMApp(Gtk.Application):
 
         # Set loglevel.
         self.log_level = logging.INFO
-        if 'debug' in self.cmd_args:
+        if 'debug' in self.cmd_opts:
             self.log_level = logging.DEBUG
 
         # Set up logging.
@@ -109,7 +110,7 @@ class WSMApp(Gtk.Application):
         util.log_snapd_version(util.get_snapd_version())
         util.log_installed_snaps(self.installed_snaps_list)
 
-        if not self.cmd_args:
+        if not self.cmd_opts:
             # No command line args passed: run GUI.
             self.activate()
             return 0
@@ -125,10 +126,28 @@ class WSMApp(Gtk.Application):
         #   TODO: Needs testing.
         status = 0
         early_return = False
-        if 'snaps-dir' in self.cmd_args:
+        if 'snaps-dir' in self.cmd_opts:
+            # Check for passed snap names to install.
+            if len(self.cmd_args) > 1:
+                install_list = self.cmd_args[1:]
+                status = 0
+                for s in install_list:
+                    # Handle both snap name (i.e. search for file with given name), and
+                    #   full snap file passed.
+                    snap_file = util.get_snap_file_path(s, self.cmd_opts['snaps-dir'])
+                    install_text = f"Installing {s}..."
+                    print(install_text)
+                    logging.info(install_text)
+                    s_status = worker.install_snap_offline(snap_file)
+                    if s_status != 0:
+                        fail_text = f"\t{s} failed to install"
+                        print(fail_text)
+                        logging.error(fail_text)
+                    status += s_status
+                return status
             early_return = True
             # Run offline updates, then continue.
-            folder = self.cmd_args['snaps-dir']
+            folder = self.cmd_opts['snaps-dir']
             # Move snaps into arch-specific subfolders for multi-arch support.
             util.wasta_offline_snap_cleanup(folder)
             # Update snaps from wasta-offline folder.
@@ -136,7 +155,7 @@ class WSMApp(Gtk.Application):
             if status != 0:
                 return status
 
-        if 'online' in self.cmd_args:
+        if 'online' in self.cmd_opts:
             # Run online updates, then exit.
             status = cmdline.update_online()
             return status

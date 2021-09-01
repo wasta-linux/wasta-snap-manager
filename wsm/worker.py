@@ -112,13 +112,7 @@ def handle_install_button_clicked(button, snap):
     # TODO: This only returns 1 preprequisite; i.e. "default-provider: <prerequisite>".
     #       Could there be more?
     offline_snap_details = util.get_offline_snap_details(file_path)
-    logging.debug(f"snap details: {offline_snap_details}")
-
-    confinement = offline_snap_details.get('confinement')
-    classic_flag = False
-    if confinement == 'classic':
-        classic_flag = True
-    logging.debug(f"Confinement for {snap}: {confinement}")
+    # logging.debug(f"snap details: {offline_snap_details}")
 
     # Install 'core' and 'prerequisites', if necessary.
     ret = 0 # initialize return code list
@@ -136,7 +130,8 @@ def handle_install_button_clicked(button, snap):
         logging.debug(f"Installing base snap: {base}")
         base_paths = [entry['file_path'] for entry in lst if entry['name'] == base]
         base_path = Path(base_paths[0])
-        ret += install_snap_offline(base_path, classic_flag)
+        # ret += install_snap_offline(base_path, classic_flag)
+        ret += install_snap_offline(base_path)
         if ret == 0:
             # TODO: Remove base from available list.
             # Re-populate installed snaps window.
@@ -148,7 +143,8 @@ def handle_install_button_clicked(button, snap):
         if not util.snap_is_installed(prereq):
             prereq_paths = [entry['file_path'] for entry in lst if entry['name'] == prereq]
             prereq_path = Path(prereq_paths[0])
-            ret += install_snap_offline(prereq_path, classic_flag)
+            # ret += install_snap_offline(prereq_path, classic_flag)
+            ret += install_snap_offline(prereq_path)
             if ret == 0:
                 # TODO: if successful, remove prereq from available list.
                 # Re-populate installed snaps window.
@@ -158,7 +154,8 @@ def handle_install_button_clicked(button, snap):
 
     # Install offline snap itself.
     logging.debug(f"Installing snap: {snap}")
-    ret += install_snap_offline(file_path, classic_flag)
+    # ret += install_snap_offline(file_path, classic_flag)
+    ret += install_snap_offline(file_path)
     logging.debug(f"Installation of {snap} terminated with status {ret}.")
 
     # Post-install.
@@ -179,16 +176,17 @@ def update_snap_offline(snap_name, updatables):
         file_paths = [i['file_path'] for i in updatables if i['name'] == snap_name]
         file_path = Path(file_paths[0])
 
-        offline_snap_details = (util.get_offline_snap_details(file_path))
-        classic_flag=False
-        try:
-            confinement = offline_snap_details['confinement']
-            if confinement == 'classic':
-                classic_flag=True
-        except KeyError:
-            pass
+        # offline_snap_details = (util.get_offline_snap_details(file_path))
+        # classic_flag=False
+        # try:
+        #     confinement = offline_snap_details['confinement']
+        #     if confinement == 'classic':
+        #         classic_flag=True
+        # except KeyError:
+        #     pass
 
-        status = install_snap_offline(file_path, classic_flag)
+        # status = install_snap_offline(file_path, classic_flag)
+        status = install_snap_offline(file_path)
     else:
         status = 0
     return status
@@ -207,7 +205,21 @@ def update_snap_online(snap):
         logging.error(subprocess.stdout, subprocess.stderr)
         return 13
 
-def install_snap_offline(snap_file, classic_flag):
+def install_snap_offline(snap_file):
+    # Read /meta/snap.yaml in snap file to get 'core' and 'prerequisites'.
+    # TODO: This only returns 1 preprequisite; i.e. "default-provider: <prerequisite>".
+    #       Could there be more?
+    offline_snap_details = util.get_offline_snap_details(snap_file)
+    logging.debug(f"snap details: {offline_snap_details}")
+
+    if not offline_snap_details:
+        return 1
+    confinement = offline_snap_details.get('confinement')
+    classic_flag = False
+    if confinement == 'classic':
+        classic_flag = True
+    logging.debug(f"Confinement for {snap_file}: {confinement}")
+
     dir = snap_file.parent
     base = snap_file.stem
     name = base.split('_')[0]
