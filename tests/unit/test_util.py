@@ -1,6 +1,8 @@
 import os
 import unittest
 
+from pathlib import Path
+
 from wsm import util
 
 
@@ -36,3 +38,19 @@ class All(unittest.TestCase):
         # Remove testing UID if set by test.
         if not uid_init:
             del os.environ['SUDO_UID']
+
+    def test_get_snap_file_path_true(self):
+        tests_path = Path(f'{__file__}/../..').resolve()
+
+        snap = 'atom'
+        offline_base_path = tests_path / 'integration' / 'fixtures' / 'snaps'
+        file_path = util.get_snap_file_path(snap, offline_base_path)
+        self.assertEqual(file_path, offline_base_path / 'amd64' / 'atom_248.snap')
+
+    def test_get_snap_file_path_false(self):
+        tests_path = Path(f'{__file__}/../..').resolve()
+
+        snap = 'kiwi'
+        offline_base_path = tests_path / 'integration' / 'fixtures' / 'snaps'
+        file_path = util.get_snap_file_path(snap, offline_base_path)
+        self.assertFalse(file_path)

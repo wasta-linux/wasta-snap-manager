@@ -390,3 +390,27 @@ def convert_filesize(input):
     else:
         output = ' '.join([str(B_amt), 'B'])
     return output
+
+def get_snap_file_path(snap, offline_base_path):
+    # Search files in corect arch folder of offline_base_path for snap.
+    arch = check_arch()
+    wol_base_path = Path(offline_base_path) / 'local-cache' / 'snaps' / arch
+    gen_base_path = Path(offline_base_path) / arch
+    base_paths = [wol_base_path, gen_base_path]
+
+    # Return full path of file matching snap.
+    snap_path = False
+    for p in base_paths:
+        try:
+            snap_path = sorted(p.glob(f'{snap}_*.snap'))[-1]
+        except IndexError:
+            continue
+
+    if not snap_path:
+        text = f"No matching file found for {snap}."
+        # print(text)
+        logging.error(text)
+    else:
+        logging.debug(f"{snap} found at {snap_path}")
+
+    return snap_path
