@@ -145,15 +145,16 @@ class WSMApp(Gtk.Application):
                         logging.error(fail_text)
                     status += s_status
                 return status
+            else:
+                # Run offline updates, then continue.
+                folder = self.cmd_opts['snaps-dir']
+                # Move snaps into arch-specific subfolders for multi-arch support.
+                util.wasta_offline_snap_cleanup(folder)
+                # Update snaps from wasta-offline folder.
+                status += cmdline.update_offline(folder)
+                if status != 0:
+                    return status
             early_return = True
-            # Run offline updates, then continue.
-            folder = self.cmd_opts['snaps-dir']
-            # Move snaps into arch-specific subfolders for multi-arch support.
-            util.wasta_offline_snap_cleanup(folder)
-            # Update snaps from wasta-offline folder.
-            status += cmdline.update_offline(folder)
-            if status != 0:
-                return status
 
         if 'online' in self.cmd_opts:
             # Run online updates, then exit.
