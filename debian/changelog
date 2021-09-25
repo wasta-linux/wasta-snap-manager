@@ -1,3 +1,10 @@
+wasta-snap-manager (0.3.0) focal; urgency=medium
+
+  * Fix segfault crash race condition.
+  * Enable CLI installation of snaps from offline source.
+
+ -- Nate Marti <nate_marti@sil.org>  Sat, 25 Sep 2021 06:57:49 +0100
+
 wasta-snap-manager (0.2.4) focal; urgency=medium
 
   * Switched online source toggle button to checkbox.
