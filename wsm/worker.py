@@ -253,7 +253,7 @@ def install_snap_offline(snap_file):
     cmd = [root_type, 'snap', 'install', str(snap_file)]
     msg = f"Installing/Updating \"{snap_file}\""
     if classic_flag:
-        cmd.insert(-2, '--classic')
+        cmd.insert(-1, '--classic')
         msg += ' with --classic flag'
 
     logging.info(msg)
