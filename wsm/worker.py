@@ -241,7 +241,8 @@ def install_snap_offline(snap_file):
     logging.debug(f"root type: {root_type}")
 
     classic_flag = False
-    if offline_snap_details.get('confinement') == 'classic':
+    confinement = offline_snap_details.get('confinement')
+    if confinement == 'classic':
         classic_flag = True
     logging.debug(f"confinement for {snap_file}: {confinement}")
 
