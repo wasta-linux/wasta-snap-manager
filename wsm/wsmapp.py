@@ -134,7 +134,7 @@ class WSMApp(Gtk.Application):
                 for s in install_list:
                     # Handle both snap name (i.e. search for file with given name), and
                     #   full snap file passed.
-                    snap_file = util.get_snap_file_path(s, self.cmd_opts['snaps-dir'])
+                    # snap_file = util.get_snap_file_path(s, self.cmd_opts['snaps-dir'])
                     install_text = f"Installing {s}..."
                     print(install_text)
                     logging.info(install_text)
