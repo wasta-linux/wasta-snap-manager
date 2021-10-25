@@ -205,7 +205,7 @@ def update_snap_online(snap):
         logging.error(subprocess.stdout, subprocess.stderr)
         return 13
 
-def acknowledge_snap_assert(assert_file):
+def acknowledge_snap_assert(root_type, assert_file):
     name = assert_file.stem.split('_')[0]
     if not assert_file.is_file():
         logging.error(f'{assert_file} is missing.')
@@ -246,7 +246,7 @@ def install_snap_offline(snap_file):
         classic_flag = True
     logging.debug(f"confinement for {snap_file}: {confinement}")
 
-    a_status = acknowledge_snap_assert(get_assert_file(snap_file))
+    a_status = acknowledge_snap_assert(get_assert_file(root_type, snap_file))
     if a_status != 0:
         return a_status
 
