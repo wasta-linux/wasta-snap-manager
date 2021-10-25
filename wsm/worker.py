@@ -271,7 +271,7 @@ def install_snap_offline(snap_file):
 def install_offline_snap_and_prereqs(app, snap_name):
     if util.snap_is_installed(snap_name):
         return 0
-    details = get_offline_snap_details(snap_file)
+    details = util.get_offline_snap_details(snap_file)
 
     # Install snapd, base, and prerequisites first.
     snapd_file = util.get_snap_file_path('snapd', app.cmd_opts['snaps-dir'])
