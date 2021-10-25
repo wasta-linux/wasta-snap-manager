@@ -358,9 +358,7 @@ def get_snap_yaml(snapfile):
                 stdout=DEVNULL
             )
             with open(Path(dest, snap_yaml)) as f:
-                #return f.read()
                 yaml_dict = yaml.safe_load(f)
-
     return yaml_dict
 
 def get_snap_prerequisites(yaml_dict):
