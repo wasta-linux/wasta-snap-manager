@@ -296,7 +296,7 @@ def install_offline_snap_and_prereqs(app, snap_name):
         if b_status != 0:
             return b_status
 
-    for p in offline_snap_details.get('prerequisites'):
+    for p in details.get('prerequisites'):
         p_status = install_offline_snap_and_prereqs(p)
         if p_status != 0:
             return p_status
