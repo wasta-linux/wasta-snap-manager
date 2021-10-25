@@ -8,7 +8,8 @@ from wsm import util
 
 class All(unittest.TestCase):
     def setUp(self):
-        pass
+        self.offline_snaps_dir = Path(__file__).parents[2] / 'var' / 'offline-snaps'
+        self.snaps_dir = self.offline_snaps_dir / 'snaps'
 
     def tearDown(self):
         pass
@@ -43,7 +44,7 @@ class All(unittest.TestCase):
         tests_path = Path(f'{__file__}/../..').resolve()
 
         snap = 'atom'
-        offline_base_path = tests_path / 'integration' / 'fixtures' / 'snaps'
+        offline_base_path = self.snaps_dir
         file_path = util.get_snap_file_path(snap, offline_base_path)
         self.assertEqual(file_path, offline_base_path / 'amd64' / 'atom_248.snap')
 
@@ -51,6 +52,6 @@ class All(unittest.TestCase):
         tests_path = Path(f'{__file__}/../..').resolve()
 
         snap = 'kiwi'
-        offline_base_path = tests_path / 'integration' / 'fixtures' / 'snaps'
+        offline_base_path = self.snaps_dir
         file_path = util.get_snap_file_path(snap, offline_base_path)
         self.assertFalse(file_path)

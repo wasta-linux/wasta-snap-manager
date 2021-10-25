@@ -26,13 +26,13 @@ from wsm import wsmwindow
 
 class All(unittest.TestCase):
     def setUp(self):
-        self.fixtures_dir = Path(Path(__file__).parents[0], 'fixtures')
-        self.snaps_dir_archless = Path(self.fixtures_dir, 'snaps_archless')
-        self.snaps_dir_empty = Path(self.fixtures_dir, 'snaps_empty')
-        self.snaps_dir_sorted = Path(self.fixtures_dir, 'snaps')
+        self.offline_snaps_dir = Path(__file__).parents[2] / 'var' / 'offline-snaps'
+        self.snaps_dir_archless = self.offline_snaps_dir / 'snaps_archless'
+        self.snaps_dir_empty = self.offline_snaps_dir / 'snaps_empty'
+        self.snaps_dir_sorted = self.offline_snaps_dir / 'snaps'
 
     def test_listed_from_1_folder(self):
-        snaps_dir = Path(self.snaps_dir_sorted, 'amd64')
+        snaps_dir = self.snaps_dir_sorted / 'amd64'
         from_app, from_cmd = self.get_lists(snaps_dir)
         self.assertListEqual(from_app, from_cmd)
 
@@ -89,8 +89,8 @@ class All(unittest.TestCase):
 
 class Avail(unittest.TestCase):
     def setUp(self):
-        self.fixtures_dir = Path(Path(__file__).parents[0], 'fixtures')
-        self.snaps_dir = Path(self.fixtures_dir, 'snaps')
+        self.offline_snaps_dir = Path(__file__).parents[2] / 'var' / 'offline-snaps'
+        self.snaps_dir = self.offline_snaps_dir / 'snaps'
 
     def test_listed(self):
         snaps_avail_offline = util.get_offline_installable_snaps(self.snaps_dir)
@@ -115,8 +115,8 @@ class Avail(unittest.TestCase):
 
 class Upd8(unittest.TestCase):
     def setUp(self):
-        self.fixtures_dir = Path(Path(__file__).parents[0], 'fixtures')
-        self.snaps_dir = Path(self.fixtures_dir, 'snaps')
+        self.offline_snaps_dir = Path(__file__).parents[2] / 'var' / 'offline-snaps'
+        self.snaps_dir = self.offline_snaps_dir / 'snaps'
 
     def tearDown(self):
         pass
