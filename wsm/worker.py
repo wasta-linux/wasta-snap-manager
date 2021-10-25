@@ -254,9 +254,11 @@ def install_snap_offline(snap_file):
     msg = f"Installing/Updating \"{snap_file}\""
     if classic_flag:
         cmd.insert(-2, '--classic')
-        msg += 'with --classic flag'
+        msg += ' with --classic flag'
+
+    logging.info(msg)
+    logging.debug(f"command: {' '.join(cmd)}")
     try:
-        logging.info(msg)
         subprocess.run(
             cmd,
             stdout=subprocess.PIPE,
