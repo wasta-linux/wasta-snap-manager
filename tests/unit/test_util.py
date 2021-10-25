@@ -41,17 +41,33 @@ class All(unittest.TestCase):
             del os.environ['SUDO_UID']
 
     def test_get_snap_file_path_true(self):
-        tests_path = Path(f'{__file__}/../..').resolve()
-
         snap = 'atom'
         offline_base_path = self.snaps_dir
         file_path = util.get_snap_file_path(snap, offline_base_path)
         self.assertEqual(file_path, offline_base_path / 'amd64' / 'atom_248.snap')
 
     def test_get_snap_file_path_false(self):
-        tests_path = Path(f'{__file__}/../..').resolve()
-
         snap = 'kiwi'
         offline_base_path = self.snaps_dir
         file_path = util.get_snap_file_path(snap, offline_base_path)
         self.assertFalse(file_path)
+
+    def test_get_snap_yaml(self):
+        snapfile = self.snaps_dir / 'amd64' / 'syncthing_501.snap'
+        snap_yaml = util.get_snap_yaml(snapfile)
+        self.assertEqual(type(snap_yaml), type(dict()))
+
+    def test_get_snap_prerequisites(self):
+        snapfile = self.snaps_dir / 'amd64' / 'snap-store_209.snap'
+        snap_yaml = util.get_snap_yaml(snapfile)
+        prereqs = ['gnome-3-28-1804', 'gtk-common-themes']
+        self.assertEqual(util.get_snap_prerequisites(snap_yaml), prereqs)
+
+    def test_get_offline_snap_details(self):
+        snapfile = self.snaps_dir / 'amd64' / 'snap-store_209.snap'
+        details = util.get_offline_snap_details(snapfile)
+        for d, v in details.items():
+            if d == 'base' or d == 'confinement' or d == 'summary':
+                self.assertTrue(type(v), type(str()))
+            elif d == 'prerequisites':
+                self.assertEqual(type(v), type(list()))
