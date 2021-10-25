@@ -364,10 +364,11 @@ def get_snap_yaml(snapfile):
 def get_snap_prerequisites(yaml_dict):
     prerequisites = set()
     plugs = yaml_dict.get('plugs')
-    for p, v in plugs.items():
-        dp = v.get('default-provider')
-        if dp:
-            prerequisites.add(dp)
+    if plugs:
+        for p, v in plugs.items():
+            dp = v.get('default-provider')
+            if dp:
+                prerequisites.add(dp)
     prerequisites = list(prerequisites)
     prerequisites.sort()
     return prerequisites
