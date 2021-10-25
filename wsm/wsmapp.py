@@ -117,7 +117,7 @@ class WSMApp(Gtk.Application):
 
         # Give terminal guidance for tracking updates.
         print('\nHint: To view update progress, open a new terminal and type:')
-        print('snap changes')
+        print('snap changes\n')
         print('The last item on the list will be the in-progress update.')
         print('Watch the progress of this particular change with:')
         print('snap watch [number]\n')
