@@ -1,5 +1,7 @@
 - [ ] Fix glitchy icon flashing
   - Seems that getting a given icon by name from the current theme is nondeterministic. Not sure of a solution.
 - [x] Provide way to install snap directly from command line.
+- [ ] Make dependency search more robust.
+- [ ] Ensure that snapd is installed before installing any bases or prerequisites.
 - [ ] Install package using dh-python rather than debian/install file.
 - [ ] Hide disabled snaps from the installed snaps window.

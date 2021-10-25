@@ -92,7 +92,7 @@ class WSMApp(Gtk.Application):
                 stderr=subprocess.STDOUT
             )
             print(proc.stdout.decode())
-            print('snapd version: %s' % util.get_snapd_version())
+            print(f"snapd version: {util.get_snapd_version()}")
             return 0
 
         # Verify execution with elevated privileges.
@@ -110,7 +110,7 @@ class WSMApp(Gtk.Application):
         util.log_snapd_version(util.get_snapd_version())
         util.log_installed_snaps(self.installed_snaps_list)
 
-        if not self.cmd_opts:
+        if not self.cmd_opts and not self.cmd_args:
             # No command line args passed: run GUI.
             self.activate()
             return 0

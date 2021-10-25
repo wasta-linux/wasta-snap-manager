@@ -5,9 +5,12 @@
 # Get repo's home folder path; assumes script is in $repo_home/tests.
 parent_dir=$(dirname $(realpath "$0"))
 repo_dir=$(dirname "$parent_dir")
+bin_path="${repo_dir}/bin/wasta-snap-manager"
 
 policy_name="org.wasta.apps.test-wasta-snap-manager.policy"
 policy_file="${parent_dir}/${policy_name}"
+# Edit policy_file for current repo.
+# ln -s "$policy_file" "~/${policy_name}"
 policies_dir='/usr/share/polkit-1/actions'
 if [[ "$1" == 'install' ]]; then
     sudo cp -l "$policy_file" "$policies_dir"
