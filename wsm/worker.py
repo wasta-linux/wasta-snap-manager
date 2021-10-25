@@ -205,39 +205,15 @@ def update_snap_online(snap):
         logging.error(subprocess.stdout, subprocess.stderr)
         return 13
 
-def install_snap_offline(snap_file):
-    # Read /meta/snap.yaml in snap file to get 'core' and 'prerequisites'.
-    # TODO: This only returns 1 preprequisite; i.e. "default-provider: <prerequisite>".
-    #       Could there be more?
-    offline_snap_details = util.get_offline_snap_details(snap_file)
-    logging.debug(f"snap details: {offline_snap_details}")
-
-    if not offline_snap_details:
-        return 1
-    confinement = offline_snap_details.get('confinement')
-    classic_flag = False
-    if confinement == 'classic':
-        classic_flag = True
-    logging.debug(f"Confinement for {snap_file}: {confinement}")
-
-    dir = snap_file.parent
-    base = snap_file.stem
-    name = base.split('_')[0]
-    ext = snap_file.suffix
-    snap_file_name = base + '.snap'
-    assert_file_name = base + '.assert'
-    assert_file = Path(dir, assert_file_name)
-    root_type = util.get_root_type()
-    if not root_type:
-        return 1
-
-    if not assert_file.is_file() or not snap_file.is_file():
-        logging.error('Either %s or %s is missing' % (assert_file_name, snap_file_name))
-        logging.error('Try installing %s from the Snap Store instead.' % name)
+def acknowledge_snap_assert(assert_file):
+    name = assert_file.stem.split('_')[0]
+    if not assert_file.is_file():
+        logging.error(f'{assert_file} is missing.')
+        logging.error(f'Try installing {name} from the Snap Store instead.')
         # TODO: Display message saying how to install it from the Snap Store.
         return 10
     try:
-        logging.info('Acknowledging \'%s\'' % assert_file)
+        logging.info(f'Acknowledging \"{assert_file}\"')
         subprocess.run(
             [root_type, 'snap', 'ack', assert_file],
             stdout=subprocess.PIPE,
@@ -247,24 +223,76 @@ def install_snap_offline(snap_file):
         logging.error(e)
         logging.error(subprocess.stdout, subprocess.stderr)
         return 11
+    return 0
+
+def get_assert_file(snap_file):
+    return snap_file.parent / f"{snap_file.stem}.assert"
+
+def install_snap_offline(snap_file):
+    # Read /meta/snap.yaml in snap file to get 'core' and 'prerequisites'.
+    offline_snap_details = util.get_offline_snap_details(snap_file)
+    if not offline_snap_details:
+        return 1
+    logging.debug(f"snap details: {offline_snap_details}")
+
+    root_type = util.get_root_type()
+    if not root_type:
+        return 1
+    logging.debug(f"root type: {root_type}")
+
+    classic_flag = False
+    if offline_snap_details.get('confinement') == 'classic':
+        classic_flag = True
+    logging.debug(f"confinement for {snap_file}: {confinement}")
+
+    a_status = acknowledge_snap_assert(get_assert_file(snap_file))
+    if a_status != 0:
+        return a_status
+
+    cmd = [root_type, 'snap', 'install', snap_file]
+    msg = f"Installing/Updating \"{snap_file}\""
+    if classic_flag:
+        cmd.insert(-2, '--classic')
+        msg += 'with --classic flag'
     try:
-        if classic_flag:
-            logging.info('Installing/Updating \'%s\' with --classic flag' % snap_file)
-            subprocess.run(
-                [root_type, 'snap', 'install', '--classic', snap_file],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT
-            )
-            return 0
-        else:
-            logging.info('Installing/Updating \'%s\'' % snap_file)
-            subprocess.run([root_type, 'snap', 'install', snap_file],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT
-            )
-            return 0
+        logging.info(msg)
+        subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT
+        )
+        return 0
     except Exception as e:
         # What are the possible errors here?
         logging.error(e)
         logging.error(subprocess.stdout, subprocess.stderr)
         return 12
+
+def install_offline_snap_and_prereqs(app, snap_name):
+    if util.snap_is_installed(snap_name):
+        return 0
+    details = get_offline_snap_details(snap_file)
+
+    # Install snapd, base, and prerequisites first.
+    snapd_file = util.get_snap_file_path('snapd', app.cmd_opts['snaps-dir'])
+    if not util.snap_is_installed('snapd'):
+        snapd_snap_file = util.get_snap_file_path('snapd', app.cmd_opts['snaps-dir'])
+        d_status = install_snap_offline(snapd_snap_file)
+        if d_status != 0:
+            return d_status
+
+    base_snap = details.get('base')
+    if not util.snap_is_installed(base_snap):
+        base_snap_file = util.get_snap_file_path(base_snap, app.cmd_opts['snaps-dir'])
+        b_status = install_snap_offline(base_snap_file)
+        if b_status != 0:
+            return b_status
+
+    for p in offline_snap_details.get('prerequisites'):
+        p_status = install_offline_snap_and_prereqs(p)
+        if p_status != 0:
+            return p_status
+
+    snap_file = util.get_snap_file_path(snap_name, app.cmd_opts['snaps-dir'])
+    status = install_snap_offline(snap_file)
+    return status
