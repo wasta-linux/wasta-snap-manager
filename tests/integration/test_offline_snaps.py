@@ -31,6 +31,9 @@ class All(unittest.TestCase):
         self.snaps_dir_empty = self.offline_snaps_dir / 'snaps_empty'
         self.snaps_dir_sorted = self.offline_snaps_dir / 'snaps'
 
+    def tearDown(self):
+        pass
+
     def test_listed_from_1_folder(self):
         snaps_dir = self.snaps_dir_sorted / 'amd64'
         from_app, from_cmd = self.get_lists(snaps_dir)
@@ -46,7 +49,7 @@ class All(unittest.TestCase):
         from_app, from_cmd = self.get_lists(snaps_dir)
         self.assertListEqual(from_app, from_cmd)
 
-    """
+    @unittest.skip("superseded")
     def test_sorted_into_arch_folders(self):
         print() # blank line to set apart app fuction output
         snaps_dir = self.snaps_dir_archless
@@ -68,10 +71,6 @@ class All(unittest.TestCase):
         self.assertListEqual(sorted(list_init), sorted(list_final))
         # Remove temp wasta-offline dir.
         shutil.rmtree(wasta_offline_dir)
-    """
-
-    def tearDown(self):
-        pass
 
     def get_lists(self, snaps_dir):
         # Get list from app.
@@ -123,7 +122,6 @@ class Upd8(unittest.TestCase):
 
     @unittest.skip("incomplete")
     def test_INCOMPLETE_listed(self):
-        """
         snaps_avail_offline = util.get_offline_installable_snaps(self.snaps_dir)
         availables_by_app = [i['name'] for i in snaps_avail_offline]
 
@@ -134,10 +132,7 @@ class Upd8(unittest.TestCase):
         for item in snaps_offline:
             if item['name'] not in snaps_installed:
                 availables_by_cmd.append(item['name'])
-
         self.assertListEqual(sorted(availables_by_app), sorted(availables_by_cmd))
-        """
-        raise Exception("Test not yet implemented.")
 
     @unittest.skip("incomplete")
     def test_INCOMPLETE_shown(self):
@@ -153,16 +148,12 @@ class ListBoxPane(unittest.TestCase):
     def tearDown(self):
         pass
 
-    #def test_something(self):
-    #    app.populate_listbox_available('a', 'b')
-    #    #for child in self.listbox.get_children():
-    #    #    print(child.name)
-
     # Stolen from Kiwi
     def refresh_gui(self, delay=0):
       while Gtk.events_pending():
           Gtk.main_iteration_do(self) #block=False
       time.sleep(delay)
+      
 
 if __name__ == '__main__':
     unittest.main()
