@@ -300,7 +300,7 @@ def install_offline_snap_and_prereqs(app, snap_name):
             return b_status
 
     for p in details.get('prerequisites'):
-        p_status = install_offline_snap_and_prereqs(p)
+        p_status = install_offline_snap_and_prereqs(app, p)
         if p_status != 0:
             return p_status
 
