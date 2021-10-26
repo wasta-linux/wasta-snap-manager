@@ -141,7 +141,7 @@ class WSMApp(Gtk.Application):
                     s_status = worker.install_offline_snap_and_prereqs(self, s)
                     # s_status = worker.install_snap_offline(snap_file)
                     if s_status != 0:
-                        fail_text = f"\t{s} failed to install"
+                        fail_text = f"Error: {s} failed to install"
                         print(fail_text)
                         logging.error(fail_text)
                     status += s_status
