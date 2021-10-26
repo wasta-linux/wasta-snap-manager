@@ -9,11 +9,24 @@ bin_path="${repo_dir}/bin/wasta-snap-manager"
 
 policy_name="org.wasta.apps.test-wasta-snap-manager.policy"
 policy_file="${parent_dir}/${policy_name}"
-# Edit policy_file for current repo.
-# ln -s "$policy_file" "~/${policy_name}"
 policies_dir='/usr/share/polkit-1/actions'
 if [[ "$1" == 'install' ]]; then
-    sudo cp -l "$policy_file" "$policies_dir"
+    # Edit policy_file for current repo.
+    sudo cp "$policy_file" "$policies_dir"
+    id=org.wasta.apps.test-wasta-snap-manager
+    pathkey=org.freedesktop.policykit.exec.path
+    # Get current path from XML file.
+    current_bin_path=$(
+        xmlstarlet select --template --match \
+            "/policyconfig/action[@id='$id']/annotate[@key='$pathkey']" -n \
+            "${policies_dir}/${policy_name}"
+    )
+    if [[ "$current_bin_path" != "$bin_path" ]]; then
+        # Update path in XML file.
+        sudo xmlstarlet edit --inplace --update \
+            "/policyconfig/action[@id='$id']/annotate[@key='$pathkey']" -v "$bin_path" \
+            "${policies_dir}/${policy_name}"
+    fi
 elif [[ "$1" == 'uninstall' ]]; then
     sudo rm "${policies_dir}/${policy_name}"
 else
