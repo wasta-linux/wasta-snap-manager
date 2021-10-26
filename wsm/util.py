@@ -41,6 +41,7 @@ def wasta_offline_snap_cleanup(folder):
     wayward_snaps = {}
     for snap_dict in snaps:
         file_path = snap_dict['file_path']
+        # TODO: Replace with get_snap_yaml function and related output.
         contents = cat_yaml(file_path).splitlines()
         p = Path(file_path)
         name, revision = p.stem.split('_')
@@ -205,12 +206,10 @@ def get_snap_icon(snap, app):
     return str(app.fallback_icon_path)
 
 def get_snap_refresh_list():
-    # updatables = [s['name'] for s in snap.refresh_list()]
     updatables = [s['name'] for s in snapctl.refresh_list()]
     return updatables
 
 def get_snap_refresh_dict():
-    # updatables = {s['name']: s['download-size'] for s in snap.refresh_list()}
     updatables = {s['name']: s['download-size'] for s in snapctl.refresh_list()}
     return updatables
 
@@ -333,20 +332,20 @@ def snap_store_accessible():
     except:
         return False
 
-# def cat_yaml(snapfile):
-#     # Data needed: 'base', 'confinement', 'prerequisites'
-#     yaml = 'meta/snap.yaml'
-#     with open(os.devnull, 'w') as DEVNULL:
-#         with tempfile.TemporaryDirectory() as dest:
-#             subprocess.run(
-#                 ['unsquashfs', '-n',  '-force', '-dest', dest, snapfile, '/' + yaml],
-#                 stdout=DEVNULL
-#             )
-#             with open(Path(dest, yaml)) as f:
-#                 #return f.read()
-#                 contents = f.read()
-#
-#     return contents
+def cat_yaml(snapfile):
+    # Data needed: 'base', 'confinement', 'prerequisites'
+    yaml = 'meta/snap.yaml'
+    with open(os.devnull, 'w') as DEVNULL:
+        with tempfile.TemporaryDirectory() as dest:
+            subprocess.run(
+                ['unsquashfs', '-n',  '-force', '-dest', dest, snapfile, '/' + yaml],
+                stdout=DEVNULL
+            )
+            with open(Path(dest, yaml)) as f:
+                #return f.read()
+                contents = f.read()
+
+    return contents
 
 def get_snap_yaml(snapfile):
     # Data needed: 'base', 'confinement', 'prerequisites'
@@ -376,29 +375,15 @@ def get_snap_prerequisites(yaml_dict):
 def get_offline_snap_details(snapfile):
     if not snapfile:
         return False
-    # contents = cat_yaml(snapfile).splitlines()
     snap_yaml_dict = get_snap_yaml(snapfile)
     p = Path(snapfile)
     name, revision = p.stem.split('_')
     output_dict = {'name': name}
     output_dict['revision'] = revision
-    # output_dict['base'] = 'core' # overwritten if 'base' specified in yaml
     output_dict['base'] = snap_yaml_dict.get('base', 'core')
     output_dict['confinement'] = snap_yaml_dict.get('confinement')
     output_dict['prerequisites'] = get_snap_prerequisites(snap_yaml_dict)
     output_dict['summary'] = snap_yaml_dict.get('summary')
-    # for line in contents:
-    #     if re.match('.*base\:.*', line):
-    #         output_dict['base'] = line.split(':')[1].strip()
-    #     elif re.match('.*confinement\:.*', line):
-    #         output_dict['confinement'] = line.split(':')[1].strip()
-    #     elif re.match('.*default\-provider\:.*', line):
-    #         # TODO: It might be possible to have > 1 default-providers!
-    #         output_dict['prerequisites'] = line.split(':')[1].strip()
-    #     elif re.match('.*summary\:.*', line):
-    #         output_dict['summary'] = line.split(':')[1].strip()
-    #     else:
-    #         continue
     return output_dict
 
 def snap_is_installed(snap_name):
