@@ -109,10 +109,7 @@ def handle_install_button_clicked(button, snap):
     file_path = Path(file_paths[0])
 
     # Read /meta/snap.yaml in snap file to get 'core' and 'prerequisites'.
-    # TODO: This only returns 1 preprequisite; i.e. "default-provider: <prerequisite>".
-    #       Could there be more?
     offline_snap_details = util.get_offline_snap_details(file_path)
-    # logging.debug(f"snap details: {offline_snap_details}")
 
     # Install 'core' and 'prerequisites', if necessary.
     ret = 0 # initialize return code list
@@ -130,31 +127,28 @@ def handle_install_button_clicked(button, snap):
         logging.debug(f"Installing base snap: {base}")
         base_paths = [entry['file_path'] for entry in lst if entry['name'] == base]
         base_path = Path(base_paths[0])
-        # ret += install_snap_offline(base_path, classic_flag)
         ret += install_snap_offline(base_path)
         if ret == 0:
             # TODO: Remove base from available list.
             # Re-populate installed snaps window.
             wsmapp.app.populate_listbox_installed(listbox, snapctl.list())
     try:
-        # Try to install prerequisite snap, if needed.
-        #   TODO: This assumes there will only be 1 prereq.
-        prereq = offline_snap_details['prerequisites']
-        if not util.snap_is_installed(prereq):
-            prereq_paths = [entry['file_path'] for entry in lst if entry['name'] == prereq]
-            prereq_path = Path(prereq_paths[0])
-            # ret += install_snap_offline(prereq_path, classic_flag)
-            ret += install_snap_offline(prereq_path)
-            if ret == 0:
-                # TODO: if successful, remove prereq from available list.
-                # Re-populate installed snaps window.
-                wsmapp.app.populate_listbox_installed(listbox, snapctl.list())
+        # Try to install prerequisite snaps, if necessary.
+        prereqs = offline_snap_details['prerequisites']
+        for prereq in prereqs:
+            if not util.snap_is_installed(prereq):
+                prereq_paths = [entry['file_path'] for entry in lst if entry['name'] == prereq]
+                prereq_path = Path(prereq_paths[0])
+                ret += install_snap_offline(prereq_path)
+                if ret == 0:
+                    # TODO: if successful, remove prereq from available list.
+                    # Re-populate installed snaps window.
+                    wsmapp.app.populate_listbox_installed(listbox, snapctl.list())
     except KeyError: # no prerequisites
         pass
 
     # Install offline snap itself.
     logging.debug(f"Installing snap: {snap}")
-    # ret += install_snap_offline(file_path, classic_flag)
     ret += install_snap_offline(file_path)
     logging.debug(f"Installation of {snap} terminated with status {ret}.")
 
@@ -175,17 +169,6 @@ def update_snap_offline(snap_name, updatables):
     if snap_name in offline_names:
         file_paths = [i['file_path'] for i in updatables if i['name'] == snap_name]
         file_path = Path(file_paths[0])
-
-        # offline_snap_details = (util.get_offline_snap_details(file_path))
-        # classic_flag=False
-        # try:
-        #     confinement = offline_snap_details['confinement']
-        #     if confinement == 'classic':
-        #         classic_flag=True
-        # except KeyError:
-        #     pass
-
-        # status = install_snap_offline(file_path, classic_flag)
         status = install_snap_offline(file_path)
     else:
         status = 0

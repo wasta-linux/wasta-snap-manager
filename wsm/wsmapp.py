@@ -132,14 +132,11 @@ class WSMApp(Gtk.Application):
                 install_list = self.cmd_args[1:]
                 status = 0
                 for s in install_list:
-                    # Handle both snap name (i.e. search for file with given name), and
-                    #   full snap file passed.
-                    # snap_file = util.get_snap_file_path(s, self.cmd_opts['snaps-dir'])
+                    # Install snap, its base, and prerequisites.
                     install_text = f"Installing {s}..."
                     print(install_text)
                     logging.info(install_text)
                     s_status = worker.install_offline_snap_and_prereqs(self, s)
-                    # s_status = worker.install_snap_offline(snap_file)
                     if s_status != 0:
                         fail_text = f"Error: {s} failed to install"
                         print(fail_text)
