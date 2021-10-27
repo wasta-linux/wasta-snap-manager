@@ -175,7 +175,7 @@ def update_snap_offline(snap_name, updatables):
     return status
 
 def update_snap_online(snap):
-    logging.info('Updating (refreshing) %s online.' % snap)
+    logging.info(f'Updating (refreshing) {snap} online.')
     try:
         subprocess.run(
             ['pkexec', 'snap', 'refresh', snap],

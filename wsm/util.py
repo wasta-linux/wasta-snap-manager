@@ -41,22 +41,11 @@ def wasta_offline_snap_cleanup(folder):
     wayward_snaps = {}
     for snap_dict in snaps:
         file_path = snap_dict['file_path']
-        # TODO: Replace with get_snap_yaml function and related output.
-        contents = cat_yaml(file_path).splitlines()
+        contents = get_snap_yaml(file_path)
+        print(content)
         p = Path(file_path)
         name, revision = p.stem.split('_')
-        wayward_snaps[p.stem] = []
-        found = 0
-        for line in contents:
-            if found == 0:
-                if re.match('.*architectures\:.*', line):
-                    found = 1
-            elif found == 1:
-                if re.match('^\s*-\s.*', line):
-                    wayward_snaps[p.stem].append(line.split()[1].strip())
-                else:
-                    # No more arches listed.
-                    break
+        wayward_snaps[p.stem] = contents.get('architectures')
 
     # Move snaps to arch-specific subfolders.
     user = get_user()
@@ -65,19 +54,17 @@ def wasta_offline_snap_cleanup(folder):
             # Create arch-specific subfolder(s).
             arch_dir = Path(snaps_dir, arch)
             if not arch_dir.is_dir():
-                #os.mkdir(arch_dir, mode=777)
                 Path.mkdir(arch_dir, mode=0o777)
                 shutil.chown(arch_dir, user=user, group=user)
             # Copy snaps to arch-specific folder.
             assert_file = snap_rev + '.assert'
             snap_file = snap_rev + '.snap'
-            logging.info('Moving {} and {} into {}'.format(snap_file, assert_file, arch_dir))
-            try:
-                shutil.move(str(Path(snaps_dir, snap_file)), str(arch_dir))
-            except shutil.Error as err:
-                logging.warning(err)
-                continue
-            shutil.move(str(Path(snaps_dir, assert_file)), str(arch_dir))
+            logging.info(f'Moving {snap_file} and {assert_file} into {arch_dir}')
+            for f in [snap_file, assert_file]:
+                try:
+                    shutil.move(str(Path(snaps_dir, f)), str(Path(arch_dir, f)))
+                except shutil.Error as err:
+                    logging.warning(err)
     print("Existing snap packages moved into relevant architecture subfolders.")
 
 def get_user():
@@ -122,7 +109,7 @@ def log_installed_snaps(snaps):
     dct = {entry['name']: entry['revision'] for entry in snaps}
     logging.info('Installed snaps (revisions):')
     for k, v in dct.items():
-        logging.info('\t%s (%s)' % (k, v))
+        logging.info(f'\t{k} ({v})')
 
 def get_snapd_version():
     info = snapctl.system_info()
@@ -130,11 +117,11 @@ def get_snapd_version():
     return version
 
 def log_snapd_version(version):
-    logging.info('Snapd version: %s' % version)
+    logging.info(f'Snapd version: {version}')
 
 def guess_offline_source_folder():
     user = get_user()
-    logging.info('username: %s' % user)
+    logging.info(f'username: {user}')
     begin = ''
     try:
         begin = sorted(Path('/media/' + user).glob('*/wasta-offline'))[0]
@@ -149,9 +136,9 @@ def guess_offline_source_folder():
             except IndexError:
                 # As a last resort just choose $HOME.
                 alt_begin = Path('/home/' + user)
-                logging.warning('No wasta-offline folder found. Falling back to \'%s\'.' % alt_begin)
+                logging.warning(f"No wasta-offline folder found. Falling back to {alt_begin}.")
     if begin:
-        logging.info('wasta-offline folder found at \'%s\'' % begin)
+        logging.info(f"wasta-offline folder found: {begin}")
         # Move wasta-offline snaps into arch-specific subfolders for multi-arch support.
         wasta_offline_snap_cleanup(begin)
     else:
@@ -331,21 +318,6 @@ def snap_store_accessible():
         return True
     except:
         return False
-
-def cat_yaml(snapfile):
-    # Data needed: 'base', 'confinement', 'prerequisites'
-    yaml = 'meta/snap.yaml'
-    with open(os.devnull, 'w') as DEVNULL:
-        with tempfile.TemporaryDirectory() as dest:
-            subprocess.run(
-                ['unsquashfs', '-n',  '-force', '-dest', dest, snapfile, '/' + yaml],
-                stdout=DEVNULL
-            )
-            with open(Path(dest, yaml)) as f:
-                #return f.read()
-                contents = f.read()
-
-    return contents
 
 def get_snap_yaml(snapfile):
     # Data needed: 'base', 'confinement', 'prerequisites'
