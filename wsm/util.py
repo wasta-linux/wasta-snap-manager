@@ -42,7 +42,6 @@ def wasta_offline_snap_cleanup(folder):
     for snap_dict in snaps:
         file_path = snap_dict['file_path']
         contents = get_snap_yaml(file_path)
-        print(content)
         p = Path(file_path)
         name, revision = p.stem.split('_')
         wayward_snaps[p.stem] = contents.get('architectures')
