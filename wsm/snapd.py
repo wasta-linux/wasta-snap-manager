@@ -19,6 +19,9 @@ class SnapdConnection(HTTPConnection):
         self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.sock.connect("/run/snapd.socket")
 
+    # def close(self):
+    #     self.sock.close()
+
 class SnapdConnectionPool(HTTPConnectionPool):
     def __init__(self):
         super().__init__("localhost")
@@ -27,6 +30,9 @@ class SnapdConnectionPool(HTTPConnectionPool):
         return SnapdConnection()
 
 class SnapdAdapter(HTTPAdapter):
+    def __init__(self):
+        super().__init__()
+
     def get_connection(self, url, proxies=None):
         return SnapdConnectionPool()
 
@@ -35,6 +41,15 @@ class Snap():
         self.session = requests.Session()
         self.fake_http = 'http://snapd'
         self.session.mount(self.fake_http, SnapdAdapter())
+
+    def close(self):
+        self.session.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
 
     def list(self):
         payload = '/v2/snaps'
