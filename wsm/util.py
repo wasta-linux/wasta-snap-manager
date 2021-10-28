@@ -191,9 +191,9 @@ def get_snap_icon(snap, app):
     logging.debug(f"Icon not found. Using fallback icon.")
     return str(app.fallback_icon_path)
 
-def get_snap_refresh_list():
-    updatables = [s['name'] for s in snapctl.refresh_list()]
-    return updatables
+# def get_snap_refresh_list():
+#     updatables = [s['name'] for s in snapctl.refresh_list()]
+#     return updatables
 
 def get_snap_refresh_dict():
     updatables = {s['name']: s['download-size'] for s in snapctl.refresh_list()}

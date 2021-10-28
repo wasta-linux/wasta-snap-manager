@@ -34,7 +34,7 @@ def handle_button_online_source_toggled(button):
         GLib.idle_add(spinner.start)
         if util.snap_store_accessible():
             text = ''
-            wsmapp.app.updatable_online_list = util.get_snap_refresh_list()
+            # wsmapp.app.updatable_online_list = util.get_snap_refresh_list()
             wsmapp.app.updatable_online_dict = util.get_snap_refresh_dict()
             wsmapp.app.select_online_update_rows()
         else:
