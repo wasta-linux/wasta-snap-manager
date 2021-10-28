@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import time
 import unittest
+import warnings
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
@@ -18,15 +19,13 @@ from wsm import snapd
 
 class All(unittest.TestCase):
     def setUp(self):
-        # Get list of snap dictionaries.
-        self.snaps = snapd.Snap().list()
+        warnings.filterwarnings(action="ignore", message="unclosed", category=ResourceWarning)
 
     def tearDown(self):
         pass
 
     def test_from_desktop(self):
         desktop_files = self.get_desktop_files(self.get_snap_names())
-        # print()
         missing_icons = []
         for desktop_file_item in desktop_files.items():
             name, icon = self.get_icon_from_desktop_file(desktop_file_item)
@@ -43,7 +42,8 @@ class All(unittest.TestCase):
 
     def get_snap_names(self):
         # Get list of snap names from snap dictionaries.
-        names = [snap['name'] for snap in self.snaps]
+        with snapd.Snap() as s:
+            names = [snap['name'] for snap in s.list()]
         return names
 
     def get_desktop_files(self, names):
