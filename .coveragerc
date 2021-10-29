@@ -1,11 +1,12 @@
+# https://coverage.readthedocs.io
+
 [run]
 branch = True
+#concurrency = threading
 source = .
 
-#[report]
+[report]
+skip_covered = True
 #exclude lines =
     # Have to re-enable the standard pragma
 #    pragma: no cover
-
-    # Ignore imports
-#    import
