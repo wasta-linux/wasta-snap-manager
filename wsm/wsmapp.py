@@ -49,13 +49,14 @@ class WSMApp(Gtk.Application):
 
         # Get UI location based on current file location.
         self.ui_dir = '/usr/share/wasta-snap-manager/ui'
-        if str(current_file_path.parents[1]) != '/usr/share/wasta-snap-manager':
+        # if str(current_file_path.parents[1]) != '/usr/share/wasta-snap-manager':
+        if self.runmode != 'installed':
             self.ui_dir = str(current_file_path.parents[1] / 'data' / 'ui')
 
         # Define app-wide variables.
-        snapctl = snapd.Snap()
-        self.runmode = ''
-        self.installed_snaps_list = snapctl.list()
+        self.snapctl = snapd.Snap()
+        # self.runmode = ''
+        self.installed_snaps_list = self.snapctl.list()
         self.installable_snaps_list = []
         self.updatable_offline_list = []
         self.updatable_online_dict = {}

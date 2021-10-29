@@ -54,6 +54,6 @@ if __name__ == '__main__': # pragma: no cover
             ('share/polkit-1/actions', glob.glob('data/actions/*')),
             ('share/icons/hicolor/scalable/apps', glob.glob('data/icons/*.svg')),
             ('share/wasta-snap-manager/ui', glob.glob('data/ui/*.glade')),
-            ('share/applications', glob.glob('data/*.desktop')),
+            ('share/applications', glob.glob('data/applications/*.desktop')),
         ]
     )

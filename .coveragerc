@@ -4,6 +4,7 @@
 branch = True
 #concurrency = threading
 source = .
+omit = ./tests/integration/test_offline_snaps.py
 
 [report]
 skip_covered = True

@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: ('-' = to do, '+' = to test)
-#   + Make listbox_installed selectable when:
-#       + listbox_available is populated & if updatable_offline_list is not empty
-#   - Unhide "Remove Snaps..." button: it works uninstalled but not when installed.
-#   - Add i10n/l18n
-
 import shutil
 import sys
 from pathlib import Path
@@ -17,20 +11,21 @@ bin_parent_dir = bin_path.parents[1]
 
 if bin_parent_dir.stem != 'usr':
     # If bin_dir's parent folder is not "/usr", then use uninstalled location.
-    modules_dir = str(bin_parent_dir)
+    # modules_dir = str(bin_parent_dir)
+    sys.path.append(str(bin_parent_dir))
     runmode = 'uninstalled'
 else:
-    modules_dir = '/usr/share/wasta-snap-manager'
+    # modules_dir = '/usr/share/wasta-snap-manager'
     runmode = 'installed'
 
-sys.path.append(modules_dir)
+
 from wsm import wsmapp
 
 if __name__ == '__main__':
     wsmapp.app.runmode = runmode
     status = wsmapp.app.run(sys.argv)
     # Remove compiled objects on exit. Otherwise app can't be fully uninstalled.
-    cache = Path(modules_dir, 'wsm', '__pycache__')
-    if cache.is_dir():
-        shutil.rmtree(cache)
+    # cache = Path(modules_dir, 'wsm', '__pycache__')
+    # if cache.is_dir():
+    #     shutil.rmtree(cache)
     sys.exit(status)
