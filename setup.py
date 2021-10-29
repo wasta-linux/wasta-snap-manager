@@ -39,7 +39,7 @@ def get_vars():
 vars = get_vars()
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': # pragma: no branch
     setup(
         name='Wasta [Snap] Manager',
         version=vars.get('version'),
