@@ -7,7 +7,6 @@ import subprocess
 import threading
 
 from pathlib import Path
-current_file_path = Path(__file__)
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gio
@@ -47,15 +46,8 @@ class WSMApp(Gtk.Application):
             'Print snapd version number.', None
         )
 
-        # # Get UI location based on current file location.
-        # self.ui_dir = '/usr/share/wasta-snap-manager/ui'
-        # # if str(current_file_path.parents[1]) != '/usr/share/wasta-snap-manager':
-        # if self.runmode != 'installed':
-        #     self.ui_dir = str(current_file_path.parents[1] / 'data' / 'ui')
-
         # Define app-wide variables.
         self.snapctl = snapd.Snap()
-        # self.runmode = ''
         self.installed_snaps_list = self.snapctl.list()
         self.installable_snaps_list = []
         self.updatable_offline_list = []
@@ -65,16 +57,15 @@ class WSMApp(Gtk.Application):
         self.fallback_icon_path = themed_icon.get_filename()
 
     def do_startup(self):
-        # Get UI location based on current file location.
+        # Get UI location based on runmode.
         self.ui_dir = '/usr/share/wasta-snap-manager/ui'
-        # if str(current_file_path.parents[1]) != '/usr/share/wasta-snap-manager':
         if self.runmode != 'installed':
-            self.ui_dir = str(current_file_path.parents[1] / 'data' / 'ui')
+            self.ui_dir = str(Path(__file__).parents[1] / 'data' / 'ui')
 
         # Define builder and its widgets.
         Gtk.Application.do_startup(self)
 
-        # Get widgets from glade file. (defined in __init__)
+        # Get widgets from glade file in ui_dir.
         self.builder = Gtk.Builder()
         self.builder.add_from_file(self.ui_dir + '/snap-manager.glade')
 
