@@ -47,11 +47,11 @@ class WSMApp(Gtk.Application):
             'Print snapd version number.', None
         )
 
-        # Get UI location based on current file location.
-        self.ui_dir = '/usr/share/wasta-snap-manager/ui'
-        # if str(current_file_path.parents[1]) != '/usr/share/wasta-snap-manager':
-        if self.runmode != 'installed':
-            self.ui_dir = str(current_file_path.parents[1] / 'data' / 'ui')
+        # # Get UI location based on current file location.
+        # self.ui_dir = '/usr/share/wasta-snap-manager/ui'
+        # # if str(current_file_path.parents[1]) != '/usr/share/wasta-snap-manager':
+        # if self.runmode != 'installed':
+        #     self.ui_dir = str(current_file_path.parents[1] / 'data' / 'ui')
 
         # Define app-wide variables.
         self.snapctl = snapd.Snap()
@@ -65,6 +65,12 @@ class WSMApp(Gtk.Application):
         self.fallback_icon_path = themed_icon.get_filename()
 
     def do_startup(self):
+        # Get UI location based on current file location.
+        self.ui_dir = '/usr/share/wasta-snap-manager/ui'
+        # if str(current_file_path.parents[1]) != '/usr/share/wasta-snap-manager':
+        if self.runmode != 'installed':
+            self.ui_dir = str(current_file_path.parents[1] / 'data' / 'ui')
+
         # Define builder and its widgets.
         Gtk.Application.do_startup(self)
 
