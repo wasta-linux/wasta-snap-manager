@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+
+import sys
+from pathlib import Path
+
+# Get runmode and set sys.path.
+runmode = 'installed'
+parent_of_script_dir = Path(__file__).parents[1]
+if parent_of_script_dir.stem != 'usr':
+    # If name of script directory's parent folder is not "usr", then use uninstalled location.
+    sys.path.append(str(parent_of_script_dir))
+    runmode = 'uninstalled'
+
+from wsm import wsmapp
+
+if __name__ == '__main__':
+    wsmapp.app.runmode = runmode
+    status = wsmapp.app.run(sys.argv)
+    sys.exit(status)

@@ -49,7 +49,7 @@ if __name__ == '__main__': # pragma: no cover
         url=vars.get('url'),
         packages=['wsm'],
         package_data={'wsm': ['README.md']},
-        scripts=['bin/wasta-snap-manager'],
+        scripts=['scripts/wasta-snap-manager'],
         data_files=[
             ('share/polkit-1/actions', glob.glob('data/actions/*')),
             ('share/icons/hicolor/scalable/apps', glob.glob('data/icons/*.svg')),
