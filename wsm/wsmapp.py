@@ -2,9 +2,6 @@
 
 import gi
 import logging
-import os
-import subprocess
-import threading
 
 from pathlib import Path
 
@@ -84,19 +81,11 @@ class WSMApp(Gtk.Application):
         self.log_level = logging.INFO
 
         if 'version' in self.cmd_opts:
-            proc = subprocess.run(
-                ['apt-cache', 'policy', 'wasta-snap-manager'],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT
-            )
-            print(proc.stdout.decode())
-            print(f"snapd version: {util.get_snapd_version()}")
+            util.print_version()
             return 0
 
         # Verify execution with elevated privileges.
-        if os.geteuid() != 0:
-            print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", __file__, "\n$ sudo", __file__)
-            exit(1)
+        util.verify_elevated_privileges()
 
         # Set loglevel.
         self.log_level = logging.INFO
@@ -169,10 +158,7 @@ class WSMApp(Gtk.Application):
         logging.debug(f"Start of function: app.do_activate")
 
         # Verify execution with elevated privileges.
-        if os.geteuid() != 0:
-            bin = '/usr/bin/wasta-snap-manager'
-            print("wasta-snap-manager needs elevated privileges; e.g.:\n\n$ pkexec", bin, "\n$ sudo", bin)
-            exit(1)
+        util.verify_elevated_privileges()
 
         # Define window and make runtime adjustments.
         self.window = self.builder.get_object('window_snap_manager')
@@ -255,13 +241,12 @@ class WSMApp(Gtk.Application):
         logging.debug(f"Start of function: populate_listbox_installed")
 
         # Check thread status.
-        main_thread = True
-        if threading.current_thread() != threading.main_thread():
-            main_thread = False
+        main_thread = util.get_thread_status()
         logging.debug(f"Function running in main thread?: {main_thread}")
 
         # Create dictionary of relevant info: icon, name, description, revision.
         contents_dict = util.snaps_list_to_dict(snaps_list, self)
+        logging.debug(f"installed snaps to show: {contents_dict}")
 
         # Remove any existing rows.
         try:

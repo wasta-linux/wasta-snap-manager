@@ -8,8 +8,10 @@ import pwd
 import re
 import shutil
 import socket
+import sys
 import subprocess
 import tempfile
+import threading
 import time
 import urllib.request
 import yaml
@@ -22,6 +24,21 @@ from wsm import wsmapp
 from wsm import snapd
 snapctl = snapd.Snap()
 
+
+def verify_elevated_privileges():
+    # Verify execution with elevated privileges.
+    if os.geteuid() != 0:
+        print(f"{sys.argv[0]} needs elevated privileges; e.g.:\n\npkexec {sys.argv[0]}\nsudo {sys.argv[0]}")
+        exit(1)
+
+def print_version():
+    proc = subprocess.run(
+        ['apt-cache', 'policy', 'wasta-snap-manager'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT
+    )
+    print(proc.stdout.decode())
+    print(f"snapd version: {get_snapd_version()}")
 
 def wasta_offline_snap_cleanup(folder):
     logging.info('Ensuring that snap packages are sorted into arch-specific subfolders.')
@@ -117,6 +134,12 @@ def get_snapd_version():
 
 def log_snapd_version(version):
     logging.info(f'Snapd version: {version}')
+
+def get_thread_status():
+    main_thread = True
+    if threading.current_thread() != threading.main_thread():
+        main_thread = False
+    return main_thread
 
 def guess_offline_source_folder():
     user = get_user()
