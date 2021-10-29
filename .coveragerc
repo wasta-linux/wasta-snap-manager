@@ -1,0 +1,11 @@
+[run]
+branch = True
+source = .
+
+#[report]
+#exclude lines =
+    # Have to re-enable the standard pragma
+#    pragma: no cover
+
+    # Ignore imports
+#    import

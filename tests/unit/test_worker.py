@@ -19,3 +19,7 @@ class All(unittest.TestCase):
         snap_file = self.snaps_dir / 'amd64' / f"{snap_name}.snap"
         assert_file = self.snaps_dir / 'amd64' / f"{snap_name}.assert"
         self.assertEqual(assert_file, worker.get_assert_file(snap_file))
+
+
+if __name__ == '__main__':
+    unittest.main()

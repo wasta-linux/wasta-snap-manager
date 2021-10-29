@@ -37,6 +37,7 @@ class All(unittest.TestCase):
         self.assertEqual(missing_icons, [])
         # TODO: assert that icon is findable.
 
+    @unittest.skip("skipped")
     def test_from_meta_gui(self):
         pass
 
@@ -97,3 +98,7 @@ class All(unittest.TestCase):
             # print('none:', icon_file)
 
         return icon_file
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -106,7 +106,7 @@ class Avail(unittest.TestCase):
         self.assertListEqual(sorted(availables_by_app), sorted(availables_by_cmd))
 
     @unittest.skip("incomplete")
-    def test_INCOMPLETE_shown(self):
+    def test_shown(self):
         pass
 
     def tearDown(self):
@@ -121,7 +121,7 @@ class Upd8(unittest.TestCase):
         pass
 
     @unittest.skip("incomplete")
-    def test_INCOMPLETE_listed(self):
+    def test_listed(self):
         snaps_avail_offline = util.get_offline_installable_snaps(self.snaps_dir)
         availables_by_app = [i['name'] for i in snaps_avail_offline]
 
@@ -135,7 +135,7 @@ class Upd8(unittest.TestCase):
         self.assertListEqual(sorted(availables_by_app), sorted(availables_by_cmd))
 
     @unittest.skip("incomplete")
-    def test_INCOMPLETE_shown(self):
+    def test_shown(self):
         raise Exception("Test not yet implemented.")
 
 class ListBoxPane(unittest.TestCase):
@@ -153,7 +153,7 @@ class ListBoxPane(unittest.TestCase):
       while Gtk.events_pending():
           Gtk.main_iteration_do(self) #block=False
       time.sleep(delay)
-      
+
 
 if __name__ == '__main__':
     unittest.main()

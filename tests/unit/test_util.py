@@ -71,3 +71,7 @@ class All(unittest.TestCase):
                 self.assertTrue(type(v), type(str()))
             elif d == 'prerequisites':
                 self.assertEqual(type(v), type(list()))
+
+
+if __name__ == '__main__':
+    unittest.main()
