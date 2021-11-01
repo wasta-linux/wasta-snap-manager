@@ -1,6 +1,9 @@
 - [ ] Fix glitchy icon flashing
   - Seems that getting a given icon by name from the current theme is nondeterministic. Not sure of a solution.
+- [x] Choose better fallback icon (media-record is not subtle enough (it's big and red) in Ubuntu's default theme)
 - [ ] Hide disabled snaps from the installed snaps window.
+- [ ] Create basic man page.
+- [ ] Use single log file instead of one per run.
 
 ### Remaining Integration Testing
  - Installed snaps are properly listed (and shown).

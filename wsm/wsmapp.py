@@ -50,7 +50,7 @@ class WSMApp(Gtk.Application):
         self.updatable_offline_list = []
         self.updatable_online_dict = {}
         self.icon_theme = Gtk.IconTheme.get_default()
-        themed_icon = self.icon_theme.lookup_icon('media-record', 48, 0)
+        themed_icon = self.icon_theme.lookup_icon('applications-system', 48, 0)
         self.fallback_icon_path = themed_icon.get_filename()
 
     def do_startup(self):
