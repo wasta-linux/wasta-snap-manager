@@ -34,18 +34,20 @@ def handle_button_online_source_toggled(button):
         GLib.idle_add(spinner.start)
         if util.snap_store_accessible():
             text = ''
-            # wsmapp.app.updatable_online_list = util.get_snap_refresh_list()
             wsmapp.app.updatable_online_dict = util.get_snap_refresh_dict()
-            wsmapp.app.select_online_update_rows()
+            # wsmapp.app.select_online_update_rows()
+            GLib.idle_add(wsmapp.app.select_online_update_rows)
         else:
             text = 'No connection to the Snap Store.'
-            wsmapp.app.button_source_online.set_active(False)
+            # wsmapp.app.button_source_online.set_active(False)
+            GLib.idle_add(wsmapp.app.button_source_online.set_active, False)
         GLib.idle_add(spinner.stop)
         GLib.idle_add(spinner.hide)
         GLib.idle_add(label.show)
     else:
         text = ''
-        wsmapp.app.deselect_online_update_rows()
+        # wsmapp.app.deselect_online_update_rows()
+        GLib.idle_add(wsmapp.app.deselect_online_update_rows)
 
     GLib.idle_add(label.set_text, text)
     return
