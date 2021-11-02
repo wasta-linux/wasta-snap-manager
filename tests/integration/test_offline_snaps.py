@@ -1,12 +1,5 @@
-#   + Offline snaps are properly listed.
-#   + Offline snaps are properly sorted to arch folders, if necessary.
-#   + Available offline snaps are properly found
-#   -   and listed in the window
-#   - Updatable offline snaps are properly found
-#   -   and selected in the window
-
 import gi
-import os
+# import os
 import shutil
 import subprocess
 import time
@@ -91,6 +84,9 @@ class Avail(unittest.TestCase):
         self.offline_snaps_dir = Path(__file__).parents[2] / 'var' / 'offline-snaps'
         self.snaps_dir = self.offline_snaps_dir / 'snaps'
 
+    def tearDown(self):
+        pass
+
     def test_listed(self):
         snaps_avail_offline = util.get_offline_installable_snaps(self.snaps_dir)
         availables_by_app = [i['name'] for i in snaps_avail_offline]
@@ -109,9 +105,8 @@ class Avail(unittest.TestCase):
     def test_shown(self):
         pass
 
-    def tearDown(self):
-        pass
 
+@unittest.skip("incomplete")
 class Upd8(unittest.TestCase):
     def setUp(self):
         self.offline_snaps_dir = Path(__file__).parents[2] / 'var' / 'offline-snaps'
@@ -120,7 +115,6 @@ class Upd8(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @unittest.skip("incomplete")
     def test_listed(self):
         snaps_avail_offline = util.get_offline_installable_snaps(self.snaps_dir)
         availables_by_app = [i['name'] for i in snaps_avail_offline]
@@ -134,7 +128,6 @@ class Upd8(unittest.TestCase):
                 availables_by_cmd.append(item['name'])
         self.assertListEqual(sorted(availables_by_app), sorted(availables_by_cmd))
 
-    @unittest.skip("incomplete")
     def test_shown(self):
         raise Exception("Test not yet implemented.")
 
