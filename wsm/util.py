@@ -101,6 +101,7 @@ def get_root_type():
     return root_type
 
 def set_up_logging(log_level):
+    # Define log file.
     user = get_user()
     log_path = Path('/home', user, '.local', 'share', 'wasta-snap-manager')
     if not log_path.is_dir():
@@ -108,18 +109,32 @@ def set_up_logging(log_level):
     shutil.chown(log_path, user=user, group=user)
     timestamp = time.strftime('%Y-%m-%d-%H-%M')
     hostname = socket.gethostname()
-    log_file = timestamp + '-' + hostname + '.log'
-    filename = Path(log_path, log_file)
+    log_file_name = timestamp + '-' + hostname + '.log'
+    log_file_path = Path(log_path, log_file_name)
+
+    # Define logging handlers.
+    file_h = logging.FileHandler(log_file_path)
+    file_h.setLevel(logging.INFO)
+    stdout_h = logging.StreamHandler(sys.stdout)
+    stdout_h.setLevel(logging.WARNING)
+    stderr_h = logging.StreamHandler(sys.stderr)
+    stderr_level = logging.ERROR
+    if log_level == logging.DEBUG:
+        stderr_level = log_level
+    stderr_h.setLevel(stderr_level)
+    handlers = [file_h, stdout_h, stderr_h]
+
+    # Set initial config.
     logging.basicConfig(
-        filename=filename,
         level=log_level,
         format='%(asctime)s %(levelname)s: %(message)s',
-        datefmt='%H:%M:%S'
+        datefmt='%H:%M:%S',
+        handlers=handlers
     )
-    shutil.chown(filename, user=user, group=user)
+    shutil.chown(log_file_path, user=user, group=user)
     logging.info('******* INSTALLING/UPDATING SNAPS **************')
     print('wasta-snap-manager log:')
-    print(filename)
+    print(log_file_path)
 
 def log_installed_snaps(snaps):
     dct = {entry['name']: entry['revision'] for entry in snaps}
@@ -158,7 +173,7 @@ def guess_offline_source_folder():
             except IndexError:
                 # As a last resort just choose $HOME.
                 alt_begin = Path('/home/' + user)
-                logging.warning(f"No wasta-offline folder found. Falling back to {alt_begin}.")
+                logging.info(f"No wasta-offline folder found. Falling back to {alt_begin}.")
     if begin:
         logging.info(f"wasta-offline folder found: {begin}")
         # Move wasta-offline snaps into arch-specific subfolders for multi-arch support.
@@ -220,6 +235,9 @@ def get_snap_icon(snap, app):
 
 def get_snap_refresh_dict():
     updatables = {s['name']: s['download-size'] for s in snapctl.refresh_list()}
+    logging.info(f"Snaps with online updates (download size):")
+    for n, s in updatables.items():
+        logging.info(f" {n} ({s} B)")
     return updatables
 
 def add_item_to_update_list(item, update_list):

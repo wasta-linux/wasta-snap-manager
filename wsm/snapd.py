@@ -3,6 +3,7 @@
 # Built on example shared by SO user david-k-hess:
 # https://stackoverflow.com/a/59594889
 
+import logging
 import requests
 import socket
 
@@ -65,7 +66,8 @@ class Snap():
         payload = '/v2/find?select=refresh'
         result = self.session.get(self.fake_http + payload).json()['result']
         if type(result) is dict:
-            print(result['message'])
+            # print(result['message'])
+            logging.error(result['message'])
             result = []
         return result
 
