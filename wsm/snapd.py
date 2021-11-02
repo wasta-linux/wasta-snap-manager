@@ -66,7 +66,6 @@ class Snap():
         payload = '/v2/find?select=refresh'
         result = self.session.get(self.fake_http + payload).json()['result']
         if type(result) is dict:
-            # print(result['message'])
             logging.error(result['message'])
             result = []
         return result

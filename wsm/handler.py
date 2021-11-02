@@ -18,9 +18,9 @@ class Handler():
     def on_button_settings_clicked(self, *args):
         try:
             subprocess.run(['pkexec', '/usr/bin/snap-settings'])
-        except:
+        except Exception as error:
             # Snap Settings app not found?
-            print("Some error occurred!")
+            logging.error(f"{error}")
 
     def on_button_source_online_toggled(self, button):
         target = worker.handle_button_online_source_toggled
@@ -74,9 +74,10 @@ class Handler():
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
             )
-        except:
+        except Exception as error:
             # Snap Store not installed?
-            print(subprocess.stdout, subprocess.stderr)
+            logging.error(error)
+            logging.error(subprocess.stdout, subprocess.stderr)
 
     def on_install_button_clicked(self, button, snap):
         target = worker.handle_install_button_clicked

@@ -102,12 +102,12 @@ class WSMApp(Gtk.Application):
             self.activate()
             return 0
 
-        # Give terminal guidance for tracking updates.
+        # Give terminal guidance for tracking updates. Use print for clarity.
         print('\nHint: To view update progress, open a new terminal and type:')
         print('snap changes\n')
         print('The last item on the list will be the in-progress update.')
         print('Watch the progress of this particular change with:')
-        print('snap watch [number]\n')
+        print('snap change [number]\n')
 
         # Run offline and then online updates, if indicated.
         #   TODO: Needs testing.
@@ -120,14 +120,10 @@ class WSMApp(Gtk.Application):
                 status = 0
                 for s in install_list:
                     # Install snap, its base, and prerequisites.
-                    install_text = f"Installing {s}..."
-                    print(install_text)
-                    logging.info(install_text)
+                    logging.info(f"Installing {s}...")
                     s_status = worker.install_offline_snap_and_prereqs(self, s)
                     if s_status != 0:
-                        fail_text = f"Error: {s} failed to install"
-                        print(fail_text)
-                        logging.error(fail_text)
+                        logging.error(f"Error: {s} failed to install")
                     status += s_status
                 return status
             else:

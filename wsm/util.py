@@ -28,6 +28,7 @@ snapctl = snapd.Snap()
 def verify_elevated_privileges():
     # Verify execution with elevated privileges.
     if os.geteuid() != 0:
+        # Logging not yet configured. Print is better at this point.
         print(f"{sys.argv[0]} needs elevated privileges; e.g.:\n\npkexec {sys.argv[0]}\nsudo {sys.argv[0]}")
         exit(1)
 
@@ -37,6 +38,7 @@ def print_version():
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT
     )
+    # Logging is not configured. Print is best option.
     print(proc.stdout.decode())
     print(f"snapd version: {get_snapd_version()}")
 
@@ -81,7 +83,7 @@ def wasta_offline_snap_cleanup(folder):
                     shutil.move(str(Path(snaps_dir, f)), str(Path(arch_dir, f)))
                 except shutil.Error as err:
                     logging.warning(err)
-    print("Existing snap packages moved into relevant architecture subfolders.")
+    logging.info("Existing snap packages moved into relevant architecture subfolders.")
 
 def get_user():
     root_type = get_root_type()
@@ -107,7 +109,7 @@ def set_up_logging(log_level):
     if not log_path.is_dir():
         os.mkdir(log_path)
     shutil.chown(log_path, user=user, group=user)
-    timestamp = time.strftime('%Y-%m-%d-%H-%M')
+    timestamp = time.strftime('%Y-%m-%d-%H:%M')
     hostname = socket.gethostname()
     log_file_name = timestamp + '-' + hostname + '.log'
     log_file_path = Path(log_path, log_file_name)
@@ -133,6 +135,7 @@ def set_up_logging(log_level):
     )
     shutil.chown(log_file_path, user=user, group=user)
     logging.info('******* INSTALLING/UPDATING SNAPS **************')
+    # Print is better than logging for quick comprehension.
     print('wasta-snap-manager log:')
     print(log_file_path)
 
@@ -439,7 +442,6 @@ def get_snap_file_path(snap, offline_base_path):
     if not snap_path:
         text = f"No matching file found for {snap}."
         logging.error(text)
-        print(f"Error: {text}")
     else:
         logging.debug(f"{snap} found at {snap_path}")
 
