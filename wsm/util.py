@@ -440,8 +440,7 @@ def get_snap_file_path(snap, offline_base_path):
             continue
 
     if not snap_path:
-        text = f"No matching file found for {snap}."
-        logging.error(text)
+        logging.error(f"No matching file found for {snap}.")
     else:
         logging.debug(f"{snap} found at {snap_path}")
 
