@@ -22,7 +22,6 @@ from pathlib import Path
 
 from wsm import wsmapp
 from wsm import snapd
-snapctl = snapd.Snap()
 
 
 def verify_elevated_privileges():
@@ -146,7 +145,8 @@ def log_installed_snaps(snaps):
         logging.info(f'\t{k} ({v})')
 
 def get_snapd_version():
-    info = snapctl.system_info()
+    with snapd.Snap() as snap:
+        info = snap.system_info()
     version = info['version']
     return version
 
@@ -232,12 +232,9 @@ def get_snap_icon(snap, app):
     logging.debug(f"Icon not found. Using fallback icon.")
     return str(app.fallback_icon_path)
 
-# def get_snap_refresh_list():
-#     updatables = [s['name'] for s in snapctl.refresh_list()]
-#     return updatables
-
 def get_snap_refresh_dict():
-    updatables = {s['name']: s['download-size'] for s in snapctl.refresh_list()}
+    with snapd.Snap() as snap:
+        updatables = {s['name']: s['download-size'] for s in snap.get_refresh_list()}
     logging.info(f"Snaps with online updates (download size):")
     for n, s in updatables.items():
         logging.info(f" {n} ({s} B)")
@@ -403,7 +400,8 @@ def get_offline_snap_details(snapfile):
 
 def snap_is_installed(snap_name):
     # response = snap.info(snap_name)
-    response = snapctl.info(snap_name)
+    with snapd.Snap() as snap:
+        response = snap.info(snap_name)
     try:
         if response['name'] == snap_name:
             return True
