@@ -3,7 +3,7 @@
 [run]
 branch = True
 #concurrency = threading
-source = .
+source = ./wsm
 omit = ./tests/integration/test_offline_snaps.py
 
 [report]
