@@ -35,11 +35,31 @@ class All(unittest.TestCase):
             if not Path(icon_file).is_file():
                 missing_icons.append(icon)
         self.assertEqual(missing_icons, [])
-        # TODO: assert that icon is findable.
+        # TODO: assert that icon is findable?
 
-    @unittest.skip("skipped")
+    @unittest.skip("incomplete")
     def test_from_meta_gui(self):
         pass
+
+    def test_context_manager(self):
+        with snapd.Snap() as snap:
+            sys_info = snap.system_info()
+        self.assertTrue(sys_info)
+
+    def test_get_system(self):
+        with snapd.Snap() as snap:
+            conf = snap.get('system')
+        self.assertTrue(isinstance(conf, dict))
+
+    def test_get_refresh_list(self):
+        with snapd.Snap() as snap:
+            refreshes = snap.get_refresh_list()
+        self.assertTrue(isinstance(refreshes, list))
+
+    def test_get_snap_info(self):
+        with snapd.Snap() as snap:
+            info = snap.info('core')
+        self.assertTrue(isinstance(info, dict))
 
     def get_snap_names(self):
         # Get list of snap names from snap dictionaries.
@@ -48,17 +68,13 @@ class All(unittest.TestCase):
         return names
 
     def get_desktop_files(self, names):
-        #print('Snap names\n---------------')
-        #print(names)
         desktop_files = {}
         for name in names:
-            # print('\n' + name + '\n---------------')
             snap_root = Path('/snap', name)
             subdirs = [s for s in snap_root.iterdir() if s.is_dir()]
             SNAP = sorted(subdirs, reverse=True)[0]
 
             poss_desktop_files = sorted(Path(SNAP).rglob('*' + name +'*.desktop'), reverse=True)
-            # print(poss_desktop_files)
             desktop_file = poss_desktop_files[0] if poss_desktop_files else Path()
 
             if desktop_file.is_file():
@@ -89,13 +105,11 @@ class All(unittest.TestCase):
 
         if Path(icon_name).is_file():
             icon_file = icon_name
-            # print('file:', icon_file)
         elif icon_theme_default.lookup_icon(icon_name, 48, 0):
             icon_file = icon_theme_default.lookup_icon(icon_name, 48, 0).get_filename()
         else:
             # Icon not found.
             icon_file = icon_name
-            # print('none:', icon_file)
 
         return icon_file
 
