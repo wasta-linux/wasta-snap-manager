@@ -52,23 +52,40 @@ class Snap():
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
+    def get(self, node, child=None):
+        """
+        Some calls require elevated privileges.
+        """
+        typical = [
+            'connections',
+            'find?select=refresh',
+            'snaps',
+            'system-info',
+        ]
+        path = f"{self.fake_http}/"
+        if node in typical:
+            path = f"{path}v2/{node}"
+            if node == 'snaps' and child:
+                path = f"{path}/{child}"
+        elif node == 'system':
+            path = f"{path}v2/snaps/{node}/conf"
+        if path == self.fake_http:
+            return None
+
+        return self.session.get(path).json()
+
     def list(self):
-        payload = '/v2/snaps'
-        result = self.session.get(self.fake_http + payload).json()['result']
-        return result
+        return self.get('snaps').get('result')
 
     def info(self, snap):
-        payload = '/v2/snaps/' + snap
-        result = self.session.get(self.fake_http + payload).json()['result']
-        return result
+        return self.get('snaps', snap).get('result')
 
-    def refresh_list(self):
-        payload = '/v2/find?select=refresh'
-        result = self.session.get(self.fake_http + payload).json()['result']
-        if type(result) is dict:
-            logging.error(result['message'])
-            result = []
-        return result
+    def get_refresh_list(self):
+        result = self.get('find?select=refresh').get('result')
+        refresh_list = None
+        if isinstance(result, list):
+            refresh_list = result
+        return refresh_list
 
     def system_info(self):
         payload = '/v2/system-info'
