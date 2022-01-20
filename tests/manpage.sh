@@ -12,9 +12,7 @@ outfile="${draft%.*}"
 outfile="${outfile##*/}"
 outfile="${root_dir}/debian/${outfile}"
 if [[ -z "$1" || "$1" == 'preview' || "$1" == 'p' ]]; then
-    echo "===== Previewing manpage from ${draft}"
     pandoc "$draft" -s -t man | man -l -
-    echo "====="
 elif [[ "$1" == 'convert' || "$1" == 'c' ]]; then
     pandoc "$draft" -s -t man -o "$outfile"
 fi
