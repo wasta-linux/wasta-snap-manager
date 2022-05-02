@@ -62,13 +62,13 @@ def wasta_offline_snap_cleanup(folder):
         contents = get_snap_yaml(file_path)
         p = Path(file_path)
         name, revision = p.stem.split('_')
-        wayward_snaps[p.stem] = contents.get('architectures')
+        wayward_snaps[p.stem] = contents.get('architectures', [])
     logging.debug(f"Wayward snaps: {wayward_snaps}")
 
     # Move snaps to arch-specific subfolders.
     user = get_user()
-    for snap_rev in wayward_snaps.keys():
-        for arch in wayward_snaps.get(snap_rev, []):
+    for snap_rev, arches in wayward_snaps.items():
+        for arch in arches:
             # Create arch-specific subfolder(s).
             arch_dir = Path(snaps_dir, arch)
             if not arch_dir.is_dir():
