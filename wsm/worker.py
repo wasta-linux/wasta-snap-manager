@@ -109,7 +109,7 @@ def handle_install_button_clicked(button, snap):
     snapctl = snapd.Snap()
 
     # Start installation loop.
-    ret = install_offline_snap_and_prereqs(wsmapp, snap)
+    ret = install_offline_snap_and_prereqs(wsmapp.app, snap)
 
     # # Get snap and assert files.
     # lst = wsmapp.app.installable_snaps_list
@@ -289,6 +289,7 @@ def install_offline_snap_and_prereqs(app, snap_name):
     logging.debug(f"Starting install process for: {snap_file}")
     details = util.get_offline_snap_details(snap_file)
     logging.debug(f"Details for \"{snap_file}\": {details}")
+    installables = wsmapp.app.installable_snaps_list
 
     # List out all dependencies for snap.
     deps = details.get('prerequisites', [])
@@ -296,19 +297,16 @@ def install_offline_snap_and_prereqs(app, snap_name):
     deps.insert(0, 'snapd')
     logging.debug(f"Dependencies for \"{snap_file}\": {deps}")
     # Install snapd, base snaps, and any prerequisites.
-    for dep in deps:
-        if not util.snap_is_installed(dep):
-            logging.debug(f"Installing snap \"{dep}\"")
-            dep_paths = [entry['file_path'] for entry in lst if entry['name'] == dep]
-            dep_path = Path(paths[0])
-            ret = install_offline_snap_and_prereqs(app, dep)
-            logging.debug(f"Installation of \"{dep}\" terminated with status \"{ret}\".")
-            if ret == 0:
-                # TODO: Remove base from available list.
-                # Re-populate installed snaps window.
-                wsmapp.app.populate_listbox_installed(listbox, snapctl.list())
-            else:
-                return ret
+    if len(deps) > 2:
+        for dep in deps if len(deps) > 2:
+            if not util.snap_is_installed(dep):
+                logging.debug(f"Installing snap \"{dep}\"")
+                dep_paths = [entry['file_path'] for entry in installables if entry['name'] == dep]
+                dep_path = Path(dep_paths[0])
+                ret = install_offline_snap_and_prereqs(app, dep)
+                logging.debug(f"Installation of \"{dep}\" terminated with status \"{ret}\".")
+                if ret != 0:
+                    return ret
 
     # # Install snapd, base, and prerequisites first.
     # if not util.snap_is_installed('snapd'):
