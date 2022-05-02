@@ -378,7 +378,8 @@ def get_snap_prerequisites(yaml_dict):
     logging.debug(f"Plugs for \"{yaml_dict.get('name')}\": {plugs}")
     if plugs:
         for p, v in plugs.items():
-            dp = v.get('default-provider')
+            if v:
+                dp = v.get('default-provider')
             if dp:
                 prerequisites.add(dp)
     prerequisites = list(prerequisites)
