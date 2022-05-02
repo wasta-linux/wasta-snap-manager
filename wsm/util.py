@@ -374,8 +374,8 @@ def get_snap_yaml(snapfile):
 
 def get_snap_prerequisites(yaml_dict):
     prerequisites = set()
-    plugs = yaml_dict.get('plugs')
-    logging.debug(f"Plugs for \"{yaml_dict}\": {plugs}")
+    plugs = yaml_dict.get('plugs', [])
+    logging.debug(f"Plugs for \"{yaml_dict.get('name')}\": {plugs}")
     if plugs:
         for p, v in plugs.items():
             dp = v.get('default-provider')
