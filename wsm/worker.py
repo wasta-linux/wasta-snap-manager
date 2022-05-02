@@ -298,7 +298,7 @@ def install_offline_snap_and_prereqs(app, snap_name):
     logging.debug(f"Dependencies for \"{snap_file}\": {deps}")
     # Install snapd, base snaps, and any prerequisites.
     if len(deps) > 2:
-        for dep in deps if len(deps) > 2:
+        for dep in deps:
             if not util.snap_is_installed(dep):
                 logging.debug(f"Installing snap \"{dep}\"")
                 dep_paths = [entry['file_path'] for entry in installables if entry['name'] == dep]
