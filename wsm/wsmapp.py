@@ -114,6 +114,8 @@ class WSMApp(Gtk.Application):
         status = 0
         early_return = False
         if 'snaps-dir' in self.cmd_opts:
+            # Set snaps_dir.
+            self.snaps_dir = self.cmd_opts.get('snaps-dir')
             # Check for passed snap names to install.
             if len(self.cmd_args) > 1:
                 install_list = self.cmd_args[1:]
@@ -128,7 +130,6 @@ class WSMApp(Gtk.Application):
                 return status
             else:
                 # Run offline updates, then continue.
-                self.snaps_dir = self.cmd_opts.get('snaps-dir')
                 # Move snaps into arch-specific subfolders for multi-arch support.
                 util.wasta_offline_snap_cleanup(self.snaps_dir)
                 # Update snaps from wasta-offline folder.
