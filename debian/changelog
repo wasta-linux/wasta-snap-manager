@@ -1,3 +1,9 @@
+wasta-snap-manager (0.3.1) jammy; urgency=medium
+
+  * Ensure that snapd snap is installed as a dependency for all snaps.
+
+ -- Nate Marti <nate_marti@sil.org>  Mon, 02 May 2022 12:54:46 +0100
+
 wasta-snap-manager (0.3.0) focal; urgency=medium
 
   * Fix segfault crash race condition.
