@@ -24,9 +24,9 @@ class InstalledListBoxPane(Gtk.Viewport):
         app.rows = app.populate_listbox_installed(app.listbox_installed, app.installed_snaps_list)
 
         # Select updatable snaps in case of found 'wasta-offline' folder.
-        app.updatable_offline_list = util.get_offline_updatable_snaps(app.start_folder)
+        app.updatable_offline_list = util.get_offline_updatable_snaps(app.snaps_dir)
         if len(app.updatable_offline_list) > 0:
-            app.select_offline_update_rows(app.start_folder, init=True)
+            app.select_offline_update_rows(app.snaps_dir, init=True)
         logging.debug(f"End of function: __init__ of InstalledListBoxPane")
 
 class AvailableListBoxPane():
@@ -52,7 +52,7 @@ class AvailableListBoxPane():
         # I can't get this to show up, so I did it manually instead.
         #app.listbox_available.set_placeholder(row_init)
 
-        app.installable_snaps_list = util.get_offline_installable_snaps(app.start_folder)
+        app.installable_snaps_list = util.get_offline_installable_snaps(app.snaps_dir)
         if len(app.installable_snaps_list) > 0:
             # Remove any existing rows (placeholder, previous folder, etc.).
             children = app.listbox_available.get_children()

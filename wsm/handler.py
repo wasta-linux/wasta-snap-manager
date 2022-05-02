@@ -34,7 +34,7 @@ class Handler():
         # Move wasta-offline snaps into arch-specific subfolders for multi-arch support.
         if folder.name == 'wasta-offline':
             util.wasta_offline_snap_cleanup(folder)
-        folder = str(folder)
+        wsmapp.app.snaps_dir = str(folder)
 
         # Remove any existing rows (placeholder, previous folder, etc.).
         children = wsmapp.app.listbox_available.get_children()
@@ -47,9 +47,9 @@ class Handler():
             return
 
         # Set app-wide variables.
-        wsmapp.app.updatable_offline_list = util.get_offline_updatable_snaps(folder)
-        wsmapp.app.installable_snaps_list = util.get_offline_installable_snaps(folder)
-        wsmapp.app.select_offline_update_rows(folder)
+        wsmapp.app.updatable_offline_list = util.get_offline_updatable_snaps(wsmapp.app.snaps_dir)
+        wsmapp.app.installable_snaps_list = util.get_offline_installable_snaps(wsmapp.app.snaps_dir)
+        wsmapp.app.select_offline_update_rows(wsmapp.app.snaps_dir)
 
         # Populate available snaps rows.
         lst = wsmapp.app.installable_snaps_list

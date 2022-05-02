@@ -128,11 +128,11 @@ class WSMApp(Gtk.Application):
                 return status
             else:
                 # Run offline updates, then continue.
-                folder = self.cmd_opts['snaps-dir']
+                self.snaps_dir = self.cmd_opts.get('snaps-dir')
                 # Move snaps into arch-specific subfolders for multi-arch support.
-                util.wasta_offline_snap_cleanup(folder)
+                util.wasta_offline_snap_cleanup(self.snaps_dir)
                 # Update snaps from wasta-offline folder.
-                status += cmdline.update_offline(folder)
+                status += cmdline.update_offline(self.snaps_dir)
                 if status != 0:
                     return status
             early_return = True
@@ -168,8 +168,8 @@ class WSMApp(Gtk.Application):
         self.button_remove_snaps.hide()
 
         # Make GUI initial adjustments.
-        self.user, self.start_folder = util.guess_offline_source_folder()
-        self.button_source_offline.set_current_folder(self.start_folder)
+        self.user, self.snaps_dir = util.guess_offline_source_folder()
+        self.button_source_offline.set_current_folder(self.snaps_dir)
 
         # Get ListBox "panes" from other module, add to sub-windows, & show.
         self.avail_lb_pane = wsmwindow.AvailableListBoxPane(self)
