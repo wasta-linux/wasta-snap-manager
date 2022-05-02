@@ -83,7 +83,6 @@ def wasta_offline_snap_cleanup(folder):
                     shutil.move(str(Path(snaps_dir, f)), str(Path(arch_dir, f)))
                 except shutil.Error as err:
                     logging.warning(err)
-    logging.info("Existing snap packages moved into relevant architecture subfolders.")
 
 def get_user():
     root_type = get_root_type()
@@ -376,6 +375,7 @@ def get_snap_yaml(snapfile):
 def get_snap_prerequisites(yaml_dict):
     prerequisites = set()
     plugs = yaml_dict.get('plugs')
+    logging.debug(f"Plugs for \"{yaml_dict}\": {plugs}")
     if plugs:
         for p, v in plugs.items():
             dp = v.get('default-provider')
