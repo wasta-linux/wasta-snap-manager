@@ -426,9 +426,20 @@ def convert_filesize(input):
 def get_snap_file_path(snap, offline_base_path):
     # Search files in corect arch folder of offline_base_path for snap.
     arch = check_arch()
-    wol_base_path = Path(offline_base_path) / 'local-cache' / 'snaps' / arch
-    gen_base_path = Path(offline_base_path) / arch
-    base_paths = [wol_base_path, gen_base_path]
+    wol_base_path = Path(offline_base_path) / 'local-cache' / 'snaps'
+    wol_all_path = Path(offline_base_path) / 'local-cache' / 'snaps' / 'all'
+    wol_arch_path = Path(offline_base_path) / 'local-cache' / 'snaps' / arch
+    gen_base_path = Path(offline_base_path)
+    gen_all_path = Path(offline_base_path) / 'all'
+    gen_arch_path = Path(offline_base_path) / arch
+    base_paths = [
+        wol_base_path,
+        wol_all_path,
+        wol_arch_path,
+        gen_base_path,
+        gen_all_path,
+        gen_arch_path,
+    ]
 
     # Return full path of file matching snap.
     snap_path = False
