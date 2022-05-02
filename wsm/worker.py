@@ -283,7 +283,7 @@ def install_snap_offline(snap_file):
 def install_offline_snap_and_prereqs(app, snap_name):
     if util.snap_is_installed(snap_name):
         return 0
-    snap_file = util.get_snap_file_path(snap_name, app.snaps_dir))
+    snap_file = util.get_snap_file_path(snap_name, app.snaps_dir)
     if not snap_file:
         return 10
     logging.debug(f"Starting install process for: {snap_file}")
