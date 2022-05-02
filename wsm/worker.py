@@ -111,73 +111,6 @@ def handle_install_button_clicked(button, snap):
     # Start installation loop.
     ret = install_offline_snap_and_prereqs(wsmapp.app, snap)
 
-    # # Get snap and assert files.
-    # lst = wsmapp.app.installable_snaps_list
-    # # Use list comprehension to get "list" of the single matching item.
-    # file_paths = [i['file_path'] for i in lst if i['name'] == snap]
-    # file_path = Path(file_paths[0])
-    # logging.debug(f"File path for \"{snap}\": {file_path}")
-    #
-    # # Read /meta/snap.yaml in snap file to get 'core' and 'prerequisites'.
-    # offline_snap_details = util.get_offline_snap_details(file_path)
-    # logging.debug(f"Details for \"{snap}\": {offline_snap_details}")
-    #
-    # # Install 'snapd', 'core', and 'prerequisites', if necessary.
-    # ret = 0 # initialize return code list
-    # base = offline_snap_details.get('base')
-    # if not base:
-    #     logging.error(f"Couldn't determine base snap. Aborting install/update.")
-    #     return 1
-    # logging.debug(f"Snap base for \"{snap}\": {base}")
-
-    # # Install snapd, base snaps, and any prerequisites.
-    # deps = offline_snap_details.get('prerequisites', [])
-    # deps.insert(0, base)
-    # deps.insert(0, 'snapd')
-    # logging.debug(f"Dependencies for \"{snap}\": {deps}")
-    # for dep in deps:
-    #     if not util.snap_is_installed(dep):
-    #         logging.debug(f"Installing snap \"{dep}\"")
-    #         dep_paths = [entry['file_path'] for entry in lst if entry['name'] == dep]
-    #         dep_path = Path(paths[0])
-    #         dep_ret = install_snap_offline(dep_path)
-    #         logging.debug(f"Installation of \"{dep}\" terminated with status \"{dep_ret}\".")
-    #         ret += dep_ret
-    #         if ret == 0:
-    #             # TODO: Remove base from available list.
-    #             # Re-populate installed snaps window.
-    #             wsmapp.app.populate_listbox_installed(listbox, snapctl.list())
-
-    # if not util.snap_is_installed(base):
-    #     logging.debug(f"Installing base snap: {base}")
-    #     base_paths = [entry['file_path'] for entry in lst if entry['name'] == base]
-    #     base_path = Path(base_paths[0])
-    #     ret += install_snap_offline(base_path)
-    #     if ret == 0:
-    #         # TODO: Remove base from available list.
-    #         # Re-populate installed snaps window.
-    #         wsmapp.app.populate_listbox_installed(listbox, snapctl.list())
-    # try:
-    #     # Try to install prerequisite snaps, if necessary.
-    #     prereqs = offline_snap_details['prerequisites']
-    #     for prereq in prereqs:
-    #         if not util.snap_is_installed(prereq):
-    #             prereq_paths = [entry['file_path'] for entry in lst if entry['name'] == prereq]
-    #             prereq_path = Path(prereq_paths[0])
-    #             ret += install_snap_offline(prereq_path)
-    #             if ret == 0:
-    #                 # TODO: if successful, remove prereq from available list.
-    #                 # Re-populate installed snaps window.
-    #                 wsmapp.app.populate_listbox_installed(listbox, snapctl.list())
-    # except KeyError: # no prerequisites
-    #     pass
-
-    # # Install offline snap itself.
-    # logging.debug(f"Installing snap: {snap}")
-    # snap_ret = install_snap_offline(file_path)
-    # logging.debug(f"Installation of \"{snap}\" terminated with status \"{snap_ret}\".")
-    # ret += snap_ret
-
     # Post-install.
     GLib.idle_add(spinner.stop)
     GLib.idle_add(spinner.hide)
@@ -286,50 +219,29 @@ def install_offline_snap_and_prereqs(app, snap_name):
     snap_file = util.get_snap_file_path(snap_name, app.snaps_dir)
     if not snap_file:
         return 10
+    
     logging.debug(f"Starting install process for: {snap_file}")
     details = util.get_offline_snap_details(snap_file)
     logging.debug(f"Details for \"{snap_file}\": {details}")
     installables = wsmapp.app.installable_snaps_list
 
     # List out all dependencies for snap.
-    deps = details.get('prerequisites', [])
-    deps.insert(0, details.get('base'))
-    deps.insert(0, 'snapd')
+    deps = [p for p in details.get('prerequisites', []) if not util.snap_is_installed(p)]
+    base = details.get('base')
+    if not util.snap_is_installed(base):
+        deps.insert(0, base)
+    if not util.snap_is_installed('snapd'):
+        deps.insert(0, 'snapd')
     logging.debug(f"Dependencies for \"{snap_file}\": {deps}")
     # Install snapd, base snaps, and any prerequisites.
-    if len(deps) > 2:
-        for dep in deps:
-            if not util.snap_is_installed(dep):
-                logging.debug(f"Installing snap \"{dep}\"")
-                dep_paths = [entry['file_path'] for entry in installables if entry['name'] == dep]
-                dep_path = Path(dep_paths[0])
-                ret = install_offline_snap_and_prereqs(app, dep)
-                logging.debug(f"Installation of \"{dep}\" terminated with status \"{ret}\".")
-                if ret != 0:
-                    return ret
-
-    # # Install snapd, base, and prerequisites first.
-    # if not util.snap_is_installed('snapd'):
-    #     snapd_snap_file = util.get_snap_file_path('snapd', app.cmd_opts['snaps-dir'])
-    #     if not snapd_snap_file:
-    #         return 10
-    #     d_status = install_snap_offline(snapd_snap_file)
-    #     if d_status != 0:
-    #         return d_status
-    #
-    # base_snap = details.get('base')
-    # if not util.snap_is_installed(base_snap):
-    #     base_snap_file = util.get_snap_file_path(base_snap, app.cmd_opts['snaps-dir'])
-    #     if not base_snap_file:
-    #         return 10
-    #     b_status = install_snap_offline(base_snap_file)
-    #     if b_status != 0:
-    #         return b_status
-    #
-    # for p in details.get('prerequisites'):
-    #     p_status = install_offline_snap_and_prereqs(app, p)
-    #     if p_status != 0:
-    #         return p_status
+    for dep in deps:
+        logging.debug(f"Installing snap \"{dep}\"")
+        dep_paths = [entry['file_path'] for entry in installables if entry['name'] == dep]
+        dep_path = Path(dep_paths[0])
+        ret = install_offline_snap_and_prereqs(app, dep)
+        logging.debug(f"Installation of \"{dep}\" terminated with status \"{ret}\".")
+        if ret != 0:
+            return ret
 
     status = install_snap_offline(snap_file)
     return status
