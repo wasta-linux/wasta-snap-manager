@@ -1,3 +1,9 @@
+wasta-snap-manager (0.3.2.2) noble; urgency=medium
+
+  * Fix formatting error.
+
+ -- Nate Marti <nate_marti@sil.org>  Thu, 26 Sep 2024 16:12:15 +0100
+
 wasta-snap-manager (0.3.2.1) noble; urgency=medium
 
   * Get version from python module.
