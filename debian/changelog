@@ -1,3 +1,9 @@
+wasta-snap-manager (0.3.2.1) noble; urgency=medium
+
+  * Get version from python module.
+
+ -- Nate Marti <nate_marti@sil.org>  Thu, 26 Sep 2024 15:52:58 +0100
+
 wasta-snap-manager (0.3.2) jammy; urgency=medium
 
   * Simplify snap prerequisite installation process.
